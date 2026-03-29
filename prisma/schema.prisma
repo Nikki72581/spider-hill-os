@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+  ARCHIVED
+}
+
+enum TaskCategory {
+  WORK
+  HOME
+  WRITING
+  PERSONAL
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum IdeaStatus {
+  RAW
+  DEVELOPING
+  READY
+  PARKED
+}
+
+enum ArticleStatus {
+  IDEA
+  OUTLINE
+  DRAFTING
+  EDITING
+  PUBLISHED
+  ARCHIVED
+}
+
+enum KBDomain {
+  TECH
+  WORK
+  HOME
+  PERSONAL
+}
+
+model Task {
+  id          String       @id @default(cuid())
+  title       String
+  body        String?
+  status      TaskStatus   @default(OPEN)
+  category    TaskCategory @default(WORK)
+  priority    Priority     @default(MEDIUM)
+  dueDate     DateTime?
+  tags        String[]
+  article     Article?     @relation(fields: [articleId], references: [id])
+  articleId   String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Idea {
+  id          String      @id @default(cuid())
+  title       String
+  body        String?
+  status      IdeaStatus  @default(RAW)
+  category    TaskCategory @default(WORK)
+  tags        String[]
+  article     Article?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Article {
+  id          String        @id @default(cuid())
+  title       String
+  status      ArticleStatus @default(IDEA)
+  platform    String?
+  body        String?
+  notes       String?
+  dueDate     DateTime?
+  publishedAt DateTime?
+  tags        String[]
+  sourceIdea  Idea?         @relation(fields: [ideaId], references: [id])
+  ideaId      String?       @unique
+  tasks       Task[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model KBEntry {
+  id          String   @id @default(cuid())
+  title       String
+  body        String
+  domain      KBDomain @default(TECH)
+  tags        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
