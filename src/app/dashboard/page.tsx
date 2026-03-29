@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma'
 import { isToday } from 'date-fns'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 async function getDashboardData() {
   const [tasks, ideas, articles, kbCount] = await Promise.all([
     prisma.task.findMany({

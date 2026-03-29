@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 type Mode = 'task' | 'idea' | 'kb'
 
@@ -20,7 +20,6 @@ export default function CapturePage() {
   const [domain, setDomain] = useState('TECH')
   const [saving, setSaving] = useState(false)
   const [done, setDone] = useState(false)
-  const router = useRouter()
 
   const currentMode = modes.find(m => m.key === mode)!
 
@@ -186,21 +185,18 @@ export default function CapturePage() {
           { href: '/ideas',     label: 'Ideas' },
           { href: '/kb',        label: 'KB' },
         ].map(({ href, label }) => (
-          <button
+          <Link
             key={href}
-            onClick={() => router.push(href)}
+            href={href}
             style={{
-              background: 'none',
-              border: 'none',
               color: 'var(--text-muted)',
               fontSize: '11px',
               fontFamily: 'var(--font-mono)',
-              cursor: 'pointer',
-              padding: 0,
+              textDecoration: 'none',
             }}
           >
             {label}
-          </button>
+          </Link>
         ))}
       </div>
     </div>

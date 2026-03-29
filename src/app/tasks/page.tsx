@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import type { Task, TaskCategory, Priority } from '@/types'
@@ -22,7 +22,7 @@ const categoryClass: Record<string, string> = {
   PERSONAL: 'tag-personal',
 }
 
-export default function TasksPage() {
+function TasksContent() {
   const searchParams = useSearchParams()
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
@@ -229,5 +229,13 @@ export default function TasksPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function TasksPage() {
+  return (
+    <Suspense fallback={<div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '12px', padding: '20px 0' }}>Loading...</div>}>
+      <TasksContent />
+    </Suspense>
   )
 }

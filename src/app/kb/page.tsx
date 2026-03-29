@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import type { KBEntry, KBDomain } from '@/types'
@@ -20,7 +20,7 @@ const domainColor: Record<string, string> = {
   PERSONAL: 'var(--neon-purple)',
 }
 
-export default function KBPage() {
+function KBContent() {
   const searchParams = useSearchParams()
   const [entries, setEntries] = useState<KBEntry[]>([])
   const [query, setQuery] = useState(searchParams.get('search') ?? '')
@@ -191,5 +191,13 @@ export default function KBPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function KBPage() {
+  return (
+    <Suspense fallback={<div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '12px', padding: '20px 0' }}>Loading...</div>}>
+      <KBContent />
+    </Suspense>
   )
 }
