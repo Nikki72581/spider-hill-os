@@ -1,2 +1,16 @@
-/.env.example
+# Environment files — never commit these
+.env
+.env.local
+.env*.local
 local.env
+
+# Next.js
+.next/
+out/
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+*.tsbuildinfo
+next-env.d.ts
