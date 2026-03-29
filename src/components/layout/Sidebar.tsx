@@ -9,6 +9,7 @@ const nav = [
   { href: '/ideas',     label: 'Ideas',       icon: '◆', accent: 'var(--neon-purple)' },
   { href: '/articles',  label: 'Writing',     icon: '◉', accent: 'var(--neon-amber)' },
   { href: '/kb',        label: 'Knowledge',   icon: '◎', accent: 'var(--neon-green)' },
+  { href: '/links',     label: 'Links',        icon: '⬡', accent: 'var(--neon-blue)' },
 ]
 
 export default function Sidebar() {
