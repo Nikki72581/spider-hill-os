@@ -87,6 +87,11 @@ export const spiderHillTheme = createTheme({
           paddingLeft: '32px !important',
           paddingRight: '32px !important',
           gap: '24px',
+          '@media (max-width: 900px)': {
+            paddingLeft: '16px !important',
+            paddingRight: '16px !important',
+            gap: '12px',
+          },
         },
       },
     },

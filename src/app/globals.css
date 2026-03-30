@@ -161,3 +161,37 @@ button {
   transition: border-color 0.15s;
 }
 .card:hover { border-color: var(--border-mid); }
+
+/* ─── Responsive ──────────────────────────────────────── */
+
+/* Tablet (≤ 1024px) */
+@media (max-width: 1024px) {
+  .card { padding: 16px; }
+}
+
+/* Mobile (≤ 900px) — sidebar becomes an overlay drawer */
+@media (max-width: 900px) {
+  :root {
+    --sidebar-w: 0px;
+  }
+
+  .card { padding: 14px; }
+
+  /* Let grid layouts relax to fewer columns */
+  [style*="gridTemplateColumns: 'repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  [style*="gridTemplateColumns: 'repeat(3"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Small mobile (≤ 480px) */
+@media (max-width: 480px) {
+  [style*="gridTemplateColumns: 'repeat(2"] {
+    grid-template-columns: 1fr !important;
+  }
+  [style*="gridTemplateColumns: 'repeat(4"] {
+    grid-template-columns: 1fr !important;
+  }
+}

@@ -7,9 +7,16 @@ import Toolbar from '@mui/material/Toolbar'
 import InputBase from '@mui/material/InputBase'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded'
 
-export default function Topbar() {
+interface TopbarProps {
+  onMenuClick?: () => void
+  showMenuButton?: boolean
+}
+
+export default function Topbar({ onMenuClick, showMenuButton = false }: TopbarProps) {
   const [query, setQuery] = useState('')
   const router = useRouter()
 
@@ -27,19 +34,34 @@ export default function Topbar() {
   return (
     <AppBar position="static">
       <Toolbar>
-        {/* Date */}
-        <Typography
-          variant="caption"
-          sx={{ whiteSpace: 'nowrap', color: 'text.disabled', letterSpacing: '0.06em' }}
-        >
-          {dateStr}
-        </Typography>
+        {/* Hamburger — mobile only */}
+        {showMenuButton && (
+          <IconButton
+            edge="start"
+            onClick={onMenuClick}
+            size="small"
+            sx={{ color: 'text.secondary', mr: '4px', flexShrink: 0 }}
+            aria-label="open navigation menu"
+          >
+            <MenuRoundedIcon fontSize="small" />
+          </IconButton>
+        )}
+
+        {/* Date — desktop only */}
+        {!showMenuButton && (
+          <Typography
+            variant="caption"
+            sx={{ whiteSpace: 'nowrap', color: 'text.disabled', letterSpacing: '0.06em', flexShrink: 0 }}
+          >
+            {dateStr}
+          </Typography>
+        )}
 
         {/* Search */}
         <Box
           component="form"
           onSubmit={handleSearch}
-          sx={{ flex: 1, maxWidth: 360 }}
+          sx={{ flex: 1, maxWidth: showMenuButton ? '100%' : 360 }}
         >
           <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
             <SearchRoundedIcon
@@ -63,7 +85,7 @@ export default function Topbar() {
         </Box>
 
         {/* Live indicator */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px', ml: 'auto' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px', ml: 'auto', flexShrink: 0 }}>
           <Box
             component="span"
             sx={{
@@ -78,7 +100,11 @@ export default function Topbar() {
           />
           <Typography
             variant="caption"
-            sx={{ color: 'text.disabled', letterSpacing: '0.08em' }}
+            sx={{
+              color: 'text.disabled',
+              letterSpacing: '0.08em',
+              display: showMenuButton ? 'none' : 'block',
+            }}
           >
             LIVE
           </Typography>

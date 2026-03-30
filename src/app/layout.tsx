@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import Sidebar from '@/components/layout/Sidebar'
-import Topbar from '@/components/layout/Topbar'
 import ThemeRegistry from '@/components/ThemeRegistry'
+import AppShell from '@/components/layout/AppShell'
 
 export const metadata: Metadata = {
   title: 'Spider Hill OS',
@@ -18,29 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ThemeRegistry>
-          <div style={{
-            display: 'flex',
-            height: '100vh',
-            overflow: 'hidden',
-          }}>
-            <Sidebar />
-            <div style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-              marginLeft: 'var(--sidebar-w)',
-            }}>
-              <Topbar />
-              <main style={{
-                flex: 1,
-                overflowY: 'auto',
-                padding: '28px 32px',
-              }}>
-                {children}
-              </main>
-            </div>
-          </div>
+          <AppShell>{children}</AppShell>
         </ThemeRegistry>
       </body>
     </html>
