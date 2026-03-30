@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma'
 import { isToday } from 'date-fns'
 import Link from 'next/link'
+import DashboardHeader from '@/components/dashboard/DashboardHeader'
+import WeatherWidget from '@/components/dashboard/WeatherWidget'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,21 +56,7 @@ export default async function DashboardPage() {
 
   return (
     <div style={{ maxWidth: '1100px' }}>
-      {/* Header */}
-      <div style={{ marginBottom: '32px' }}>
-        <h1 style={{
-          fontWeight: 800,
-          fontSize: '28px',
-          letterSpacing: '-0.03em',
-          color: 'var(--text-primary)',
-          marginBottom: '4px',
-        }}>
-          Good morning.
-        </h1>
-        <p style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
-          Here&apos;s what&apos;s happening across Spider Hill OS.
-        </p>
-      </div>
+      <DashboardHeader />
 
       {/* Stats row */}
       <div className="grid-stats">
@@ -282,6 +270,9 @@ export default async function DashboardPage() {
               </Link>
             ))}
           </div>
+
+          {/* Weather */}
+          <WeatherWidget />
 
         </div>
       </div>
