@@ -19,6 +19,7 @@ import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded'
 import AutoStoriesRoundedIcon from '@mui/icons-material/AutoStoriesRounded'
 import LinkRoundedIcon from '@mui/icons-material/LinkRounded'
 import TerminalRoundedIcon from '@mui/icons-material/TerminalRounded'
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded'
 import BoltRoundedIcon from '@mui/icons-material/BoltRounded'
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 import type { SvgIconComponent } from '@mui/icons-material'
@@ -31,6 +32,7 @@ const nav: { href: string; label: string; Icon: SvgIconComponent; accent: string
   { href: '/kb',        label: 'Knowledge',    Icon: AutoStoriesRoundedIcon, accent: '#06d6a0' },
   { href: '/links',     label: 'Links',        Icon: LinkRoundedIcon,        accent: '#4361ee' },
   { href: '/dev',       label: 'Dev Activity', Icon: TerminalRoundedIcon,    accent: '#4cc9f0' },
+  { href: '/home',      label: 'Home Control', Icon: HomeRoundedIcon,         accent: '#06d6a0' },
 ]
 
 interface SidebarProps {
