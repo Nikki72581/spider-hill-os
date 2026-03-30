@@ -61,8 +61,8 @@ function SidebarContent({
           </Typography>
           <Typography
             sx={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 800,
+              fontFamily: 'var(--font-mono)',
+              fontWeight: 700,
               fontSize: '18px',
               color: 'text.primary',
               letterSpacing: '-0.02em',

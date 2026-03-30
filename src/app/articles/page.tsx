@@ -55,12 +55,7 @@ export default function ArticlesPage() {
         <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>Loading...</div>
       ) : (
         /* Kanban board */
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(5, 1fr)',
-          gap: '12px',
-          alignItems: 'start',
-        }}>
+        <div className="grid-kanban">
           {STAGES.map(({ status, label, color }) => (
             <div key={status}>
               {/* Column header */}

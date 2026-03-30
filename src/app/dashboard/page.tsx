@@ -71,12 +71,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats row */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '12px',
-        marginBottom: '28px',
-      }}>
+      <div className="grid-stats">
         {[
           { label: 'Open tasks',   value: tasks.length,  color: 'var(--neon-pink)',   href: '/tasks' },
           { label: 'Due today',    value: dueToday,      color: 'var(--neon-amber)',  href: '/tasks?filter=today' },
@@ -113,11 +108,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Main grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 380px',
-        gap: '16px',
-      }}>
+      <div className="grid-dashboard-main">
         {/* Tasks */}
         <div className="card">
           <div style={{

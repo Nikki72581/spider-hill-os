@@ -72,6 +72,9 @@ html, body {
 /* Focus */
 :focus-visible { outline: 1.5px solid var(--neon-cyan); outline-offset: 2px; }
 
+/* Headings */
+h1, h2, h3, h4 { font-family: var(--font-mono); }
+
 /* Links */
 a { color: inherit; text-decoration: none; }
 
@@ -162,36 +165,63 @@ button {
 }
 .card:hover { border-color: var(--border-mid); }
 
-/* ─── Responsive ──────────────────────────────────────── */
+/* ─── Responsive grid utilities ──────────────────────── */
 
-/* Tablet (≤ 1024px) */
-@media (max-width: 1024px) {
-  .card { padding: 16px; }
+/* 4-column stats row (dashboard) */
+.grid-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+/* Main dashboard layout: tasks | sidebar panel */
+.grid-dashboard-main {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 16px;
+}
+
+/* 5-column Kanban board (articles) */
+.grid-kanban {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+/* ─── Breakpoints ─────────────────────────────────────── */
+
+/* Compact desktop (≤ 1280px) — articles kanban gets tighter */
+@media (max-width: 1280px) {
+  .grid-kanban {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Medium desktop (≤ 1150px) — dashboard collapses to single column */
+@media (max-width: 1150px) {
+  .grid-dashboard-main {
+    grid-template-columns: 1fr;
+  }
+  .grid-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid-kanban {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* Mobile (≤ 900px) — sidebar becomes an overlay drawer */
 @media (max-width: 900px) {
-  :root {
-    --sidebar-w: 0px;
-  }
-
+  :root { --sidebar-w: 0px; }
   .card { padding: 14px; }
-
-  /* Let grid layouts relax to fewer columns */
-  [style*="gridTemplateColumns: 'repeat(4"] {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-  [style*="gridTemplateColumns: 'repeat(3"] {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
+  .grid-stats { grid-template-columns: repeat(2, 1fr); }
+  .grid-kanban { grid-template-columns: 1fr 1fr; }
 }
 
-/* Small mobile (≤ 480px) */
-@media (max-width: 480px) {
-  [style*="gridTemplateColumns: 'repeat(2"] {
-    grid-template-columns: 1fr !important;
-  }
-  [style*="gridTemplateColumns: 'repeat(4"] {
-    grid-template-columns: 1fr !important;
-  }
+/* Small mobile (≤ 520px) */
+@media (max-width: 520px) {
+  .grid-stats { grid-template-columns: repeat(2, 1fr); }
+  .grid-kanban { grid-template-columns: 1fr; }
 }
