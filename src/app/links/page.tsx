@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface LinkCard {
   title: string
@@ -14,7 +14,7 @@ interface LinkCollection {
   cards: LinkCard[]
 }
 
-const collections: LinkCollection[] = [
+const staticCollections: LinkCollection[] = [
   {
     title: 'Things to Share',
     cards: [
@@ -49,21 +49,6 @@ const collections: LinkCollection[] = [
         title: 'Local 26R1',
         url: 'http://desktop-3v587o1/Acumatica26R1/',
         description: 'Customization Projects',
-      },
-    ],
-  },
-  {
-    title: 'Shopping',
-    cards: [
-      {
-        title: "Women's Pants – Lacceti",
-        url: 'https://lacceti.com/collections/pants-1?page=2&sort_by=best-selling',
-        favIconUrl: 'https://lacceti.com/cdn/shop/files/C_68.png?crop=center&height=32&v=1755051147&width=32',
-      },
-      {
-        title: 'Betsey Johnson – DSW',
-        url: 'https://www.dsw.com/browse/betsey+johnson?No=2&size=6.5',
-        favIconUrl: 'https://www.dsw.com/favicon.05366da586.png',
       },
     ],
   },
@@ -179,56 +164,56 @@ const collections: LinkCollection[] = [
   },
 ]
 
-const collectionAccents: Record<string, string> = {
+const ACCENT_COLORS = [
+  'var(--neon-amber)',
+  'var(--neon-cyan)',
+  'var(--neon-blue)',
+  'var(--neon-purple)',
+  'var(--neon-green)',
+  'var(--neon-pink)',
+]
+
+const staticAccents: Record<string, string> = {
   'Things to Share':     'var(--neon-amber)',
   'Junova.io':           'var(--neon-cyan)',
   'Acumatica Systems':   'var(--neon-blue)',
-  'Shopping':            'var(--neon-pink)',
   'Commission Flow App': 'var(--neon-purple)',
   'Tools':               'var(--neon-green)',
+}
+
+const STORAGE_KEY = 'spider-hill-links'
+
+interface StoredLink extends LinkCard {
+  collection: string
+}
+
+function getAccent(name: string, allNames: string[]): string {
+  if (staticAccents[name]) return staticAccents[name]
+  const idx = allNames.indexOf(name)
+  return ACCENT_COLORS[idx % ACCENT_COLORS.length]
 }
 
 function FavIcon({ url, title }: { url?: string; title: string }) {
   const [failed, setFailed] = useState(false)
 
-  if (!url || failed) {
-    return (
-      <div style={{
-        width: '16px',
-        height: '16px',
-        borderRadius: '3px',
-        background: 'var(--bg-overlay)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '9px',
-        color: 'var(--text-muted)',
-        flexShrink: 0,
-      }}>
-        {title.charAt(0).toUpperCase()}
-      </div>
-    )
-  }
+  const placeholder = (
+    <div style={{
+      width: '16px',
+      height: '16px',
+      borderRadius: '3px',
+      background: 'var(--bg-overlay)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '9px',
+      color: 'var(--text-muted)',
+      flexShrink: 0,
+    }}>
+      {title.charAt(0).toUpperCase()}
+    </div>
+  )
 
-  // Skip data: URIs (Notion uses one)
-  if (url.startsWith('data:')) {
-    return (
-      <div style={{
-        width: '16px',
-        height: '16px',
-        borderRadius: '3px',
-        background: 'var(--bg-overlay)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '9px',
-        color: 'var(--text-muted)',
-        flexShrink: 0,
-      }}>
-        {title.charAt(0).toUpperCase()}
-      </div>
-    )
-  }
+  if (!url || failed || url.startsWith('data:')) return placeholder
 
   return (
     // eslint-disable-next-line @next/next/no-img-element
@@ -243,11 +228,277 @@ function FavIcon({ url, title }: { url?: string; title: string }) {
   )
 }
 
+interface AddLinkModalProps {
+  existingCollections: string[]
+  onClose: () => void
+  onAdd: (link: StoredLink) => void
+}
+
+function AddLinkModal({ existingCollections, onClose, onAdd }: AddLinkModalProps) {
+  const [title, setTitle] = useState('')
+  const [url, setUrl] = useState('')
+  const [description, setDescription] = useState('')
+  const [favIconUrl, setFavIconUrl] = useState('')
+  const [collection, setCollection] = useState(existingCollections[0] ?? '')
+  const [newCollection, setNewCollection] = useState('')
+  const [useNewCollection, setUseNewCollection] = useState(false)
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    const col = useNewCollection ? newCollection.trim() : collection
+    if (!title.trim() || !url.trim() || !col) return
+    onAdd({
+      title: title.trim(),
+      url: url.trim(),
+      description: description.trim() || undefined,
+      favIconUrl: favIconUrl.trim() || undefined,
+      collection: col,
+    })
+  }
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '8px 10px',
+    borderRadius: 'var(--radius-sm)',
+    background: 'var(--bg-overlay)',
+    border: '0.5px solid var(--border-mid)',
+    color: 'var(--text-primary)',
+    fontSize: '13px',
+    fontFamily: 'var(--font-mono)',
+    outline: 'none',
+    boxSizing: 'border-box',
+  }
+
+  const labelStyle: React.CSSProperties = {
+    fontSize: '11px',
+    fontFamily: 'var(--font-mono)',
+    color: 'var(--text-muted)',
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    marginBottom: '4px',
+    display: 'block',
+  }
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.6)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+      }}
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div style={{
+        background: 'var(--bg-surface)',
+        border: '0.5px solid var(--border-mid)',
+        borderRadius: 'var(--radius-lg)',
+        padding: '24px',
+        width: '420px',
+        maxWidth: 'calc(100vw - 32px)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>Add Link</span>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              fontSize: '18px',
+              lineHeight: 1,
+              padding: '2px 6px',
+            }}
+          >
+            ×
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div>
+            <label style={labelStyle}>Title *</label>
+            <input
+              style={inputStyle}
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder="Link title"
+              required
+              autoFocus
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>URL *</label>
+            <input
+              style={inputStyle}
+              value={url}
+              onChange={e => setUrl(e.target.value)}
+              placeholder="https://"
+              required
+              type="url"
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Description</label>
+            <input
+              style={inputStyle}
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="Short description (optional)"
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Favicon URL</label>
+            <input
+              style={inputStyle}
+              value={favIconUrl}
+              onChange={e => setFavIconUrl(e.target.value)}
+              placeholder="https://example.com/favicon.ico (optional)"
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>Collection *</label>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+              <button
+                type="button"
+                onClick={() => setUseNewCollection(false)}
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'var(--font-mono)',
+                  padding: '4px 10px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '0.5px solid var(--border-mid)',
+                  background: !useNewCollection ? 'var(--neon-blue)' : 'var(--bg-overlay)',
+                  color: !useNewCollection ? '#000' : 'var(--text-muted)',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                Existing
+              </button>
+              <button
+                type="button"
+                onClick={() => setUseNewCollection(true)}
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'var(--font-mono)',
+                  padding: '4px 10px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '0.5px solid var(--border-mid)',
+                  background: useNewCollection ? 'var(--neon-blue)' : 'var(--bg-overlay)',
+                  color: useNewCollection ? '#000' : 'var(--text-muted)',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                New
+              </button>
+            </div>
+            {useNewCollection ? (
+              <input
+                style={inputStyle}
+                value={newCollection}
+                onChange={e => setNewCollection(e.target.value)}
+                placeholder="New collection name"
+                required
+              />
+            ) : (
+              <select
+                style={{ ...inputStyle, cursor: 'pointer' }}
+                value={collection}
+                onChange={e => setCollection(e.target.value)}
+                required
+              >
+                {existingCollections.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 'var(--radius-sm)',
+                border: '0.5px solid var(--border-mid)',
+                background: 'var(--bg-overlay)',
+                color: 'var(--text-muted)',
+                fontSize: '12px',
+                fontFamily: 'var(--font-mono)',
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              style={{
+                padding: '8px 16px',
+                borderRadius: 'var(--radius-sm)',
+                border: 'none',
+                background: 'var(--neon-blue)',
+                color: '#000',
+                fontSize: '12px',
+                fontFamily: 'var(--font-mono)',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              Add Link
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 export default function LinksPage() {
   const [search, setSearch] = useState('')
+  const [showModal, setShowModal] = useState(false)
+  const [userLinks, setUserLinks] = useState<StoredLink[]>([])
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored) setUserLinks(JSON.parse(stored))
+    } catch {
+      // ignore
+    }
+  }, [])
+
+  function addLink(link: StoredLink) {
+    const updated = [...userLinks, link]
+    setUserLinks(updated)
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(updated)) } catch { /* ignore */ }
+    setShowModal(false)
+  }
+
+  // Merge static + user-added into collections
+  const collections: LinkCollection[] = [...staticCollections]
+  for (const link of userLinks) {
+    const existing = collections.find(c => c.title === link.collection)
+    const card: LinkCard = { title: link.title, url: link.url, description: link.description, favIconUrl: link.favIconUrl }
+    if (existing) {
+      existing.cards.push(card)
+    } else {
+      collections.push({ title: link.collection, cards: [card] })
+    }
+  }
+
+  const allNames = collections.map(c => c.title)
 
   const query = search.toLowerCase().trim()
-
   const filtered = collections
     .map(col => ({
       ...col,
@@ -260,6 +511,8 @@ export default function LinksPage() {
     }))
     .filter(col => col.cards.length > 0)
 
+  const totalLinks = collections.reduce((acc, c) => acc + c.cards.length, 0)
+
   return (
     <div style={{ maxWidth: '900px' }}>
       {/* Header */}
@@ -267,34 +520,58 @@ export default function LinksPage() {
         <div>
           <h1 style={{ fontWeight: 800, fontSize: '24px', letterSpacing: '-0.02em', marginBottom: '2px' }}>Links</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
-            {collections.reduce((acc, c) => acc + c.cards.length, 0)} links · {collections.length} collections
+            {totalLinks} links · {collections.length} collections
           </p>
         </div>
 
-        {/* Search */}
-        <input
-          type="text"
-          placeholder="Search links..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{
-            padding: '8px 14px',
-            borderRadius: 'var(--radius-md)',
-            background: 'var(--bg-surface)',
-            border: '0.5px solid var(--border-mid)',
-            color: 'var(--text-primary)',
-            fontSize: '13px',
-            fontFamily: 'var(--font-mono)',
-            width: '220px',
-            outline: 'none',
-          }}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Search */}
+          <input
+            type="text"
+            placeholder="Search links..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{
+              padding: '8px 14px',
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--bg-surface)',
+              border: '0.5px solid var(--border-mid)',
+              color: 'var(--text-primary)',
+              fontSize: '13px',
+              fontFamily: 'var(--font-mono)',
+              width: '200px',
+              outline: 'none',
+            }}
+          />
+
+          {/* Add Link button */}
+          <button
+            onClick={() => setShowModal(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 14px',
+              borderRadius: 'var(--radius-md)',
+              border: 'none',
+              background: 'var(--neon-blue)',
+              color: '#000',
+              fontSize: '12px',
+              fontFamily: 'var(--font-mono)',
+              fontWeight: 700,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            + Add Link
+          </button>
+        </div>
       </div>
 
       {/* Collections */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         {filtered.map(col => {
-          const accent = collectionAccents[col.title] ?? 'var(--neon-blue)'
+          const accent = getAccent(col.title, allNames)
           return (
             <div key={col.title}>
               {/* Section header */}
@@ -404,6 +681,14 @@ export default function LinksPage() {
           </div>
         )}
       </div>
+
+      {showModal && (
+        <AddLinkModal
+          existingCollections={collections.map(c => c.title)}
+          onClose={() => setShowModal(false)}
+          onAdd={addLink}
+        />
+      )}
     </div>
   )
 }

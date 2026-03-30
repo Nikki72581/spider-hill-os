@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Sidebar from '@/components/layout/Sidebar'
 import Topbar from '@/components/layout/Topbar'
+import ThemeRegistry from '@/components/ThemeRegistry'
 
 export const metadata: Metadata = {
   title: 'Spider Hill OS',
@@ -16,29 +17,31 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div style={{
-          display: 'flex',
-          height: '100vh',
-          overflow: 'hidden',
-        }}>
-          <Sidebar />
+        <ThemeRegistry>
           <div style={{
-            flex: 1,
             display: 'flex',
-            flexDirection: 'column',
+            height: '100vh',
             overflow: 'hidden',
-            marginLeft: 'var(--sidebar-w)',
           }}>
-            <Topbar />
-            <main style={{
+            <Sidebar />
+            <div style={{
               flex: 1,
-              overflowY: 'auto',
-              padding: '28px 32px',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              marginLeft: 'var(--sidebar-w)',
             }}>
-              {children}
-            </main>
+              <Topbar />
+              <main style={{
+                flex: 1,
+                overflowY: 'auto',
+                padding: '28px 32px',
+              }}>
+                {children}
+              </main>
+            </div>
           </div>
-        </div>
+        </ThemeRegistry>
       </body>
     </html>
   )
