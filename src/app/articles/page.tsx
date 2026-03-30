@@ -31,10 +31,10 @@ export default function ArticlesPage() {
     <div style={{ maxWidth: '1200px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px' }}>
         <div>
-          <h1 style={{ fontWeight: 800, fontSize: '24px', letterSpacing: '-0.02em', marginBottom: '2px' }}>
+          <h1 style={{ fontWeight: 700, fontSize: '24px', letterSpacing: '-0.02em', marginBottom: '2px' }}>
             Writing Pipeline
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
             {articles.filter(a => a.status !== 'PUBLISHED' && a.status !== 'ARCHIVED').length} active · {articles.filter(a => a.status === 'PUBLISHED').length} published
           </p>
         </div>
@@ -52,7 +52,7 @@ export default function ArticlesPage() {
       </div>
 
       {loading ? (
-        <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>Loading...</div>
+        <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>Loading...</div>
       ) : (
         /* Kanban board */
         <div className="grid-kanban">
@@ -66,7 +66,7 @@ export default function ArticlesPage() {
                 padding: '10px 12px',
                 borderRadius: 'var(--radius-sm)',
                 background: 'var(--bg-elevated)',
-                border: `0.5px solid ${color}33`,
+                border: `0.5px solid ${color}44`,
                 marginBottom: '8px',
               }}>
                 <span style={{
@@ -86,7 +86,7 @@ export default function ArticlesPage() {
                 <span style={{
                   fontSize: '10px',
                   fontFamily: 'var(--font-mono)',
-                  color: 'var(--text-muted)',
+                  color: 'var(--text-secondary)',
                 }}>
                   {grouped[status]?.length ?? 0}
                 </span>
@@ -98,7 +98,7 @@ export default function ArticlesPage() {
                   <Link key={article.id} href={`/articles/${article.id}`} style={{ textDecoration: 'none' }}>
                     <div style={{
                       background: 'var(--bg-surface)',
-                      border: '0.5px solid var(--border-subtle)',
+                      border: `0.5px solid ${color}22`,
                       borderRadius: 'var(--radius-md)',
                       padding: '12px',
                       cursor: 'pointer',
@@ -108,7 +108,7 @@ export default function ArticlesPage() {
                         {article.title}
                       </p>
                       {article.platform && (
-                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginBottom: '6px' }}>
+                        <div style={{ fontSize: '10px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', marginBottom: '6px' }}>
                           → {article.platform}
                         </div>
                       )}
@@ -123,10 +123,11 @@ export default function ArticlesPage() {
                             <span key={tag} style={{
                               fontFamily: 'var(--font-mono)',
                               fontSize: '9px',
-                              color: 'var(--text-muted)',
+                              color: 'var(--text-secondary)',
                               background: 'var(--bg-elevated)',
                               padding: '1px 5px',
                               borderRadius: '3px',
+                              border: '0.5px solid var(--border-mid)',
                             }}>#{tag}</span>
                           ))}
                         </div>
@@ -139,10 +140,10 @@ export default function ArticlesPage() {
                 {(grouped[status] ?? []).length === 0 && (
                   <div style={{
                     padding: '16px 12px',
-                    border: `0.5px dashed ${color}22`,
+                    border: `0.5px dashed ${color}33`,
                     borderRadius: 'var(--radius-md)',
                     textAlign: 'center',
-                    color: 'var(--text-ghost)',
+                    color: 'var(--text-muted)',
                     fontSize: '11px',
                     fontFamily: 'var(--font-mono)',
                   }}>

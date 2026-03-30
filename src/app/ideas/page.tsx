@@ -5,18 +5,18 @@ import Link from 'next/link'
 import type { Idea, IdeaStatus } from '@/types'
 
 const statuses: { key: IdeaStatus | 'ALL'; label: string; color: string }[] = [
-  { key: 'ALL',        label: 'All',        color: 'var(--text-secondary)' },
-  { key: 'RAW',        label: 'Raw',        color: 'var(--text-muted)'     },
-  { key: 'DEVELOPING', label: 'Developing', color: 'var(--neon-blue)'      },
-  { key: 'READY',      label: 'Ready',      color: 'var(--neon-green)'     },
-  { key: 'PARKED',     label: 'Parked',     color: 'var(--text-ghost)'     },
+  { key: 'ALL',        label: 'All',        color: 'var(--text-primary)'  },
+  { key: 'RAW',        label: 'Raw',        color: 'var(--text-secondary)' },
+  { key: 'DEVELOPING', label: 'Developing', color: 'var(--neon-blue)'     },
+  { key: 'READY',      label: 'Ready',      color: 'var(--neon-green)'    },
+  { key: 'PARKED',     label: 'Parked',     color: 'var(--text-muted)'    },
 ]
 
 const statusColor: Record<string, string> = {
-  RAW:        'var(--text-muted)',
+  RAW:        'var(--text-secondary)',
   DEVELOPING: 'var(--neon-blue)',
   READY:      'var(--neon-green)',
-  PARKED:     'var(--text-ghost)',
+  PARKED:     'var(--text-muted)',
 }
 
 const categoryClass: Record<string, string> = {
@@ -43,8 +43,8 @@ export default function IdeasPage() {
     <div style={{ maxWidth: '900px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontWeight: 800, fontSize: '24px', letterSpacing: '-0.02em', marginBottom: '2px' }}>Ideas</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
+          <h1 style={{ fontWeight: 700, fontSize: '24px', letterSpacing: '-0.02em', marginBottom: '2px' }}>Ideas</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
             {ideas.filter(i => i.status !== 'PARKED').length} active · {ideas.filter(i => i.status === 'READY').length} ready to develop
           </p>
         </div>
@@ -70,7 +70,7 @@ export default function IdeasPage() {
             borderRadius: 'var(--radius-sm)',
             background: filter === s.key ? 'var(--bg-overlay)' : 'transparent',
             border: filter === s.key ? `0.5px solid ${s.color}55` : '0.5px solid var(--border-subtle)',
-            color: filter === s.key ? s.color : 'var(--text-muted)',
+            color: filter === s.key ? s.color : 'var(--text-secondary)',
             fontSize: '11px',
             fontFamily: 'var(--font-mono)',
             cursor: 'pointer',
@@ -82,9 +82,9 @@ export default function IdeasPage() {
       </div>
 
       {loading ? (
-        <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>Loading...</div>
+        <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>Loading...</div>
       ) : visible.length === 0 ? (
-        <div style={{ color: 'var(--text-muted)', fontSize: '13px', padding: '40px 0', textAlign: 'center' }}>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '13px', padding: '40px 0', textAlign: 'center' }}>
           No ideas here. <Link href="/ideas/new" style={{ color: 'var(--neon-purple)' }}>Capture one →</Link>
         </div>
       ) : (
@@ -140,7 +140,7 @@ export default function IdeasPage() {
                 </span>
 
                 {/* Age */}
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-ghost)', minWidth: '52px', textAlign: 'right' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-secondary)', minWidth: '52px', textAlign: 'right' }}>
                   {Math.floor((Date.now() - new Date(idea.createdAt).getTime()) / 86400000)}d ago
                 </span>
               </div>

@@ -12,7 +12,7 @@ const priorityColor: Record<string, string> = {
   URGENT: 'var(--neon-pink)',
   HIGH:   'var(--neon-amber)',
   MEDIUM: 'var(--neon-blue)',
-  LOW:    'var(--text-muted)',
+  LOW:    'var(--text-secondary)',
 }
 
 const categoryClass: Record<string, string> = {
@@ -60,8 +60,8 @@ function TasksContent() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontWeight: 800, fontSize: '24px', letterSpacing: '-0.02em', marginBottom: '2px' }}>Tasks</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
+          <h1 style={{ fontWeight: 700, fontSize: '24px', letterSpacing: '-0.02em', marginBottom: '2px' }}>Tasks</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
             {visible.length} showing · {doneCount} done
           </p>
         </div>
@@ -91,7 +91,7 @@ function TasksContent() {
                 borderRadius: 'var(--radius-sm)',
                 background: category === cat ? 'var(--bg-overlay)' : 'transparent',
                 border: category === cat ? '0.5px solid var(--border-mid)' : '0.5px solid var(--border-subtle)',
-                color: category === cat ? 'var(--text-primary)' : 'var(--text-muted)',
+                color: category === cat ? 'var(--text-primary)' : 'var(--text-secondary)',
                 fontSize: '11px',
                 fontFamily: 'var(--font-mono)',
                 cursor: 'pointer',
@@ -110,7 +110,7 @@ function TasksContent() {
               borderRadius: 'var(--radius-sm)',
               background: showDone ? 'var(--neon-green)12' : 'transparent',
               border: showDone ? '0.5px solid var(--neon-green)44' : '0.5px solid var(--border-subtle)',
-              color: showDone ? 'var(--neon-green)' : 'var(--text-muted)',
+              color: showDone ? 'var(--neon-green)' : 'var(--text-secondary)',
               fontSize: '11px',
               fontFamily: 'var(--font-mono)',
               cursor: 'pointer',
@@ -123,9 +123,9 @@ function TasksContent() {
 
       {/* Task list */}
       {loading ? (
-        <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '12px', padding: '20px 0' }}>Loading...</div>
+        <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '12px', padding: '20px 0' }}>Loading...</div>
       ) : visible.length === 0 ? (
-        <div style={{ color: 'var(--text-muted)', fontSize: '13px', padding: '40px 0', textAlign: 'center' }}>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '13px', padding: '40px 0', textAlign: 'center' }}>
           Nothing here. <Link href="/tasks/new" style={{ color: 'var(--neon-pink)' }}>Add a task →</Link>
         </div>
       ) : (
@@ -169,7 +169,7 @@ function TasksContent() {
                         width: '18px',
                         height: '18px',
                         borderRadius: '4px',
-                        border: `1px solid ${task.status === 'DONE' ? 'var(--neon-green)' : 'var(--border-mid)'}`,
+                        border: `1px solid ${task.status === 'DONE' ? 'var(--neon-green)' : 'var(--border-strong)'}`,
                         background: task.status === 'DONE' ? 'var(--neon-green)22' : 'transparent',
                         color: 'var(--neon-green)',
                         fontSize: '11px',
@@ -214,7 +214,7 @@ function TasksContent() {
                           if (d < now && task.status !== 'DONE') return 'var(--neon-pink)'
                           const today = new Date(); today.setHours(23,59,59)
                           if (d <= today) return 'var(--neon-amber)'
-                          return 'var(--text-muted)'
+                          return 'var(--text-secondary)'
                         })(),
                         whiteSpace: 'nowrap',
                       }}>
@@ -234,7 +234,7 @@ function TasksContent() {
 
 export default function TasksPage() {
   return (
-    <Suspense fallback={<div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '12px', padding: '20px 0' }}>Loading...</div>}>
+    <Suspense fallback={<div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '12px', padding: '20px 0' }}>Loading...</div>}>
       <TasksContent />
     </Suspense>
   )
