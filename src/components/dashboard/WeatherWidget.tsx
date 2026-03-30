@@ -59,7 +59,7 @@ export default function WeatherWidget() {
 
   if (loading) return (
     <div className="card" style={{ padding: '20px', minHeight: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)', animation: 'neon-pulse 1.5s ease-in-out infinite' }}>
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)', animation: 'neon-pulse 1.5s ease-in-out infinite' }}>
         fetching weather…
       </span>
     </div>
@@ -83,13 +83,13 @@ export default function WeatherWidget() {
         <h2 style={{
           fontSize: '13px',
           fontWeight: 600,
-          color: 'var(--text-secondary)',
+          color: 'var(--neon-cyan)',
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
         }}>
-          ◎ Haddam, CT
+          Haddam, CT
         </h2>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-muted)' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-secondary)' }}>
           06438
         </span>
       </div>
@@ -112,7 +112,7 @@ export default function WeatherWidget() {
             <span style={{
               fontFamily: 'var(--font-mono)',
               fontSize: '14px',
-              color: 'var(--text-muted)',
+              color: 'var(--text-secondary)',
               lineHeight: 1,
               marginBottom: '4px',
             }}>F</span>
@@ -120,7 +120,7 @@ export default function WeatherWidget() {
           <div style={{
             fontFamily: 'var(--font-mono)',
             fontSize: '11px',
-            color: 'var(--text-muted)',
+            color: 'var(--text-secondary)',
             marginTop: '2px',
           }}>
             feels {Math.round(current.apparent_temperature)}°
@@ -147,7 +147,7 @@ export default function WeatherWidget() {
             { label: 'Precip',   value: `${current.precipitation}"` },
           ].map(({ label, value }) => (
             <div key={label} style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginBottom: '3px' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-muted)' }}>{label}</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-secondary)' }}>{label}</span>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-secondary)' }}>{value}</span>
             </div>
           ))}
@@ -174,7 +174,7 @@ export default function WeatherWidget() {
               <div style={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: '10px',
-                color: isToday ? 'var(--neon-cyan)' : 'var(--text-muted)',
+                color: isToday ? 'var(--neon-cyan)' : 'var(--text-secondary)',
                 letterSpacing: '0.06em',
                 marginBottom: '6px',
                 textTransform: 'uppercase' as const,
@@ -186,7 +186,7 @@ export default function WeatherWidget() {
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-primary)', fontWeight: 700 }}>
                   {Math.round(daily.temperature_2m_max[i])}°
                 </span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-muted)' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-secondary)' }}>
                   {Math.round(daily.temperature_2m_min[i])}°
                 </span>
               </div>

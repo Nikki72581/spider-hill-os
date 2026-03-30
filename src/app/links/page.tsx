@@ -519,7 +519,7 @@ export default function LinksPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
           <h1 style={{ fontWeight: 800, fontSize: '24px', letterSpacing: '-0.02em', marginBottom: '2px' }}>Links</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
             {totalLinks} links · {collections.length} collections
           </p>
         </div>
@@ -601,7 +601,7 @@ export default function LinksPage() {
                 <span style={{
                   fontSize: '10px',
                   fontFamily: 'var(--font-mono)',
-                  color: 'var(--text-ghost)',
+                  color: 'var(--text-muted)',
                 }}>
                   {col.cards.length}
                 </span>
@@ -659,7 +659,7 @@ export default function LinksPage() {
                     {card.description && (
                       <span style={{
                         fontSize: '11px',
-                        color: 'var(--text-muted)',
+                        color: 'var(--text-secondary)',
                         fontFamily: 'var(--font-mono)',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -676,7 +676,7 @@ export default function LinksPage() {
         })}
 
         {filtered.length === 0 && (
-          <div style={{ color: 'var(--text-muted)', fontSize: '13px', padding: '40px 0', textAlign: 'center' }}>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '13px', padding: '40px 0', textAlign: 'center' }}>
             No links match &ldquo;{search}&rdquo;
           </div>
         )}

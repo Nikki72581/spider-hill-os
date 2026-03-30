@@ -4,9 +4,11 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import type { KBEntry, KBDomain } from '@/types'
+import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
+import AutoStoriesRoundedIcon from '@mui/icons-material/AutoStoriesRounded'
 
 const domains: { key: KBDomain | 'ALL'; label: string; color: string }[] = [
-  { key: 'ALL',      label: 'All',      color: 'var(--text-secondary)' },
+  { key: 'ALL',      label: 'All',      color: 'var(--text-primary)'  },
   { key: 'TECH',     label: 'Tech',     color: 'var(--neon-cyan)'    },
   { key: 'WORK',     label: 'Work',     color: 'var(--neon-blue)'    },
   { key: 'HOME',     label: 'Home',     color: 'var(--neon-green)'   },
@@ -48,10 +50,11 @@ function KBContent() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontWeight: 800, fontSize: '24px', letterSpacing: '-0.02em', marginBottom: '2px' }}>
+          <h1 style={{ fontWeight: 700, fontSize: '24px', letterSpacing: '-0.02em', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <AutoStoriesRoundedIcon style={{ fontSize: 22, color: 'var(--neon-green)' }} />
             Knowledge Base
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
             {entries.length} entries
           </p>
         </div>
@@ -71,16 +74,17 @@ function KBContent() {
       {/* Search + filter */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', alignItems: 'center' }}>
         <div style={{ flex: 1, position: 'relative' }}>
-          <span style={{
+          <SearchRoundedIcon style={{
             position: 'absolute', left: '10px', top: '50%',
-            transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: '13px',
-          }}>⌕</span>
+            transform: 'translateY(-50%)', color: 'var(--text-secondary)', fontSize: '16px',
+            pointerEvents: 'none',
+          }} />
           <input
             type="text"
             placeholder="Search entries, tags..."
             value={query}
             onChange={e => setQuery(e.target.value)}
-            style={{ paddingLeft: '28px' }}
+            style={{ paddingLeft: '32px' }}
           />
         </div>
         <div style={{ display: 'flex', gap: '4px' }}>
@@ -93,7 +97,7 @@ function KBContent() {
                 borderRadius: 'var(--radius-sm)',
                 background: domain === d.key ? 'var(--bg-overlay)' : 'transparent',
                 border: domain === d.key ? `0.5px solid ${d.color}55` : '0.5px solid var(--border-subtle)',
-                color: domain === d.key ? d.color : 'var(--text-muted)',
+                color: domain === d.key ? d.color : 'var(--text-secondary)',
                 fontSize: '11px',
                 fontFamily: 'var(--font-mono)',
                 cursor: 'pointer',
@@ -108,11 +112,11 @@ function KBContent() {
 
       {/* Entries grid */}
       {loading ? (
-        <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '12px', padding: '20px 0' }}>
+        <div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '12px', padding: '20px 0' }}>
           Loading...
         </div>
       ) : entries.length === 0 ? (
-        <div style={{ color: 'var(--text-muted)', fontSize: '13px', padding: '40px 0', textAlign: 'center' }}>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '13px', padding: '40px 0', textAlign: 'center' }}>
           {query ? `No results for "${query}"` : 'No entries yet. Start building your knowledge base.'}
         </div>
       ) : (
@@ -123,7 +127,7 @@ function KBContent() {
         }}>
           {entries.map(entry => (
             <Link key={entry.id} href={`/kb/${entry.id}`} style={{ textDecoration: 'none' }}>
-              <div className="card" style={{ height: '100%', cursor: 'pointer' }}>
+              <div className="card" style={{ height: '100%', cursor: 'pointer', borderColor: `${domainColor[entry.domain]}22` }}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'flex-start',
@@ -131,13 +135,17 @@ function KBContent() {
                   gap: '8px',
                   marginBottom: '8px',
                 }}>
-                  <h3 style={{ fontSize: '14px', fontWeight: 600, lineHeight: 1.4 }}>{entry.title}</h3>
+                  <h3 style={{ fontSize: '14px', fontWeight: 600, lineHeight: 1.4, color: 'var(--text-primary)' }}>{entry.title}</h3>
                   <span style={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '9px',
                     letterSpacing: '0.1em',
                     textTransform: 'uppercase',
                     color: domainColor[entry.domain],
+                    background: `${domainColor[entry.domain]}15`,
+                    border: `0.5px solid ${domainColor[entry.domain]}33`,
+                    padding: '2px 6px',
+                    borderRadius: '4px',
                     flexShrink: 0,
                     marginTop: '2px',
                   }}>
@@ -164,8 +172,9 @@ function KBContent() {
                       <span key={tag} style={{
                         fontFamily: 'var(--font-mono)',
                         fontSize: '10px',
-                        color: 'var(--text-muted)',
+                        color: 'var(--text-secondary)',
                         background: 'var(--bg-elevated)',
+                        border: '0.5px solid var(--border-mid)',
                         padding: '1px 6px',
                         borderRadius: '3px',
                       }}>
@@ -181,7 +190,7 @@ function KBContent() {
                   borderTop: '0.5px solid var(--border-subtle)',
                   fontFamily: 'var(--font-mono)',
                   fontSize: '10px',
-                  color: 'var(--text-muted)',
+                  color: 'var(--text-secondary)',
                 }}>
                   Updated {new Date(entry.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                 </div>
@@ -196,7 +205,7 @@ function KBContent() {
 
 export default function KBPage() {
   return (
-    <Suspense fallback={<div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: '12px', padding: '20px 0' }}>Loading...</div>}>
+    <Suspense fallback={<div style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '12px', padding: '20px 0' }}>Loading...</div>}>
       <KBContent />
     </Suspense>
   )

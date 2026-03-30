@@ -67,7 +67,7 @@ export default function DashboardHeader() {
           {greeting}
         </h1>
         <p style={{
-          color:      'var(--text-muted)',
+          color:      'var(--text-secondary)',
           fontFamily: 'var(--font-mono)',
           fontSize:   '12px',
         }}>
@@ -137,7 +137,7 @@ export default function DashboardHeader() {
               <div style={{
                 fontFamily: 'var(--font-display)',
                 fontSize:   '10px',
-                color:      'var(--text-ghost)',
+                color:      'var(--text-muted)',
                 lineHeight: 1,
               }}>
                 {label}
