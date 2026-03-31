@@ -3,10 +3,7 @@ import { isToday } from 'date-fns'
 import Link from 'next/link'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
 import WeatherWidget from '@/components/dashboard/WeatherWidget'
-import ChecklistRoundedIcon from '@mui/icons-material/ChecklistRounded'
-import DriveFileRenameOutlineRoundedIcon from '@mui/icons-material/DriveFileRenameOutlineRounded'
-import LightbulbRoundedIcon from '@mui/icons-material/LightbulbRounded'
-import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded'
+import { ClipboardList, PenLine, Lightbulb, ArrowRight } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -110,7 +107,7 @@ export default async function DashboardPage() {
             marginBottom: '16px',
           }}>
             <h2 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--neon-pink)', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ChecklistRoundedIcon style={{ fontSize: 15 }} /> Open Tasks
+              <ClipboardList size={14} /> Open Tasks
             </h2>
             <Link href="/tasks/new" style={{
               fontSize: '11px',
@@ -184,7 +181,7 @@ export default async function DashboardPage() {
           <div className="card">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
               <h2 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--neon-amber)', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <DriveFileRenameOutlineRoundedIcon style={{ fontSize: 15 }} /> Writing Pipeline
+                <PenLine size={14} /> Writing Pipeline
               </h2>
               <Link href="/articles/new" style={{
                 fontSize: '11px',
@@ -221,7 +218,7 @@ export default async function DashboardPage() {
                   </span>
                   {article.platform && (
                     <span style={{ fontSize: '10px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                      <ArrowForwardRoundedIcon style={{ fontSize: 10 }} />{article.platform}
+                      <ArrowRight size={10} />{article.platform}
                     </span>
                   )}
                 </div>
@@ -233,7 +230,7 @@ export default async function DashboardPage() {
           <div className="card">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
               <h2 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--neon-purple)', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <LightbulbRoundedIcon style={{ fontSize: 15 }} /> Ideas
+                <Lightbulb size={14} /> Ideas
               </h2>
               <Link href="/ideas/new" style={{
                 fontSize: '11px',

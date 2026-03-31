@@ -2,6 +2,17 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 type Mode = 'task' | 'idea' | 'kb'
 
@@ -53,11 +64,7 @@ export default function CapturePage() {
   }
 
   return (
-    <div style={{
-      maxWidth: '560px',
-      margin: '0 auto',
-      padding: '12px 0',
-    }}>
+    <div style={{ maxWidth: '560px', margin: '0 auto', padding: '12px 0' }}>
       {/* Mode switcher */}
       <div style={{
         display: 'flex',
@@ -69,12 +76,14 @@ export default function CapturePage() {
         padding: '4px',
       }}>
         {modes.map(m => (
-          <button
+          <Button
             key={m.key}
+            variant="ghost"
             onClick={() => setMode(m.key)}
             style={{
               flex: 1,
               padding: '8px',
+              height: 'auto',
               borderRadius: 'var(--radius-sm)',
               background: mode === m.key ? 'var(--bg-overlay)' : 'transparent',
               color: mode === m.key ? m.color : 'var(--text-muted)',
@@ -82,103 +91,125 @@ export default function CapturePage() {
               fontFamily: 'var(--font-mono)',
               border: mode === m.key ? `0.5px solid ${m.color}44` : '0.5px solid transparent',
               transition: 'all 0.15s',
-              cursor: 'pointer',
             }}
           >
             {m.label}
-          </button>
+          </Button>
         ))}
       </div>
 
       {/* Title */}
       <div style={{ marginBottom: '12px' }}>
-        <input
+        <Input
           type="text"
           placeholder={currentMode.placeholder}
           value={title}
           onChange={e => setTitle(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSave()}
           autoFocus
+          className="h-12 text-base"
           style={{
             fontSize: '16px',
-            padding: '12px 14px',
+            fontFamily: 'var(--font-mono)',
             borderColor: title ? `${currentMode.color}66` : undefined,
+            background: 'var(--bg-surface)',
+            color: 'var(--text-primary)',
           }}
         />
       </div>
 
       {/* Body */}
       <div style={{ marginBottom: '16px' }}>
-        <textarea
+        <Textarea
           placeholder="Add details (optional)..."
           value={body}
           onChange={e => setBody(e.target.value)}
           rows={4}
-          style={{ resize: 'vertical', fontFamily: 'var(--font-mono)', fontSize: '13px' }}
+          style={{
+            resize: 'vertical',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '13px',
+            background: 'var(--bg-surface)',
+            color: 'var(--text-primary)',
+            borderColor: 'var(--border-mid)',
+          }}
         />
       </div>
 
       {/* Mode-specific options */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
         {(mode === 'task' || mode === 'idea') && (
-          <select value={category} onChange={e => setCategory(e.target.value)} style={{ flex: 1 }}>
-            <option value="WORK">Work</option>
-            <option value="HOME">Home</option>
-            <option value="WRITING">Writing</option>
-            <option value="PERSONAL">Personal</option>
-          </select>
+          <div style={{ flex: 1 }}>
+            <Label className="sr-only">Category</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', background: 'var(--bg-surface)', borderColor: 'var(--border-mid)' }}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent style={{ background: 'var(--bg-overlay)', borderColor: 'var(--border-mid)' }}>
+                <SelectItem value="WORK">Work</SelectItem>
+                <SelectItem value="HOME">Home</SelectItem>
+                <SelectItem value="WRITING">Writing</SelectItem>
+                <SelectItem value="PERSONAL">Personal</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         )}
 
         {mode === 'task' && (
-          <select value={priority} onChange={e => setPriority(e.target.value)} style={{ flex: 1 }}>
-            <option value="LOW">Low priority</option>
-            <option value="MEDIUM">Medium priority</option>
-            <option value="HIGH">High priority</option>
-            <option value="URGENT">Urgent</option>
-          </select>
+          <div style={{ flex: 1 }}>
+            <Label className="sr-only">Priority</Label>
+            <Select value={priority} onValueChange={setPriority}>
+              <SelectTrigger style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', background: 'var(--bg-surface)', borderColor: 'var(--border-mid)' }}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent style={{ background: 'var(--bg-overlay)', borderColor: 'var(--border-mid)' }}>
+                <SelectItem value="LOW">Low priority</SelectItem>
+                <SelectItem value="MEDIUM">Medium priority</SelectItem>
+                <SelectItem value="HIGH">High priority</SelectItem>
+                <SelectItem value="URGENT">Urgent</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         )}
 
         {mode === 'kb' && (
-          <select value={domain} onChange={e => setDomain(e.target.value)} style={{ flex: 1 }}>
-            <option value="TECH">Tech</option>
-            <option value="WORK">Work</option>
-            <option value="HOME">Home</option>
-            <option value="PERSONAL">Personal</option>
-          </select>
+          <div style={{ flex: 1 }}>
+            <Label className="sr-only">Domain</Label>
+            <Select value={domain} onValueChange={setDomain}>
+              <SelectTrigger style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', background: 'var(--bg-surface)', borderColor: 'var(--border-mid)' }}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent style={{ background: 'var(--bg-overlay)', borderColor: 'var(--border-mid)' }}>
+                <SelectItem value="TECH">Tech</SelectItem>
+                <SelectItem value="WORK">Work</SelectItem>
+                <SelectItem value="HOME">Home</SelectItem>
+                <SelectItem value="PERSONAL">Personal</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         )}
       </div>
 
       {/* Save */}
-      <button
+      <Button
         onClick={handleSave}
         disabled={!title.trim() || saving}
+        className="w-full h-12"
         style={{
-          width: '100%',
-          padding: '12px',
-          background: done
-            ? 'var(--neon-green)18'
-            : `${currentMode.color}18`,
+          background: done ? 'var(--neon-green)18' : `${currentMode.color}18`,
           border: `0.5px solid ${done ? 'var(--neon-green)' : currentMode.color}66`,
           color: done ? 'var(--neon-green)' : currentMode.color,
           fontSize: '14px',
           fontWeight: 600,
-          borderRadius: 'var(--radius-md)',
-          cursor: title.trim() ? 'pointer' : 'not-allowed',
-          opacity: title.trim() ? 1 : 0.5,
-          transition: 'all 0.2s',
           fontFamily: 'var(--font-display)',
+          transition: 'all 0.2s',
         }}
       >
         {done ? '✓ Captured' : saving ? 'Saving...' : 'Capture →'}
-      </button>
+      </Button>
 
       {/* Nav shortcuts */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '20px',
-        marginTop: '28px',
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '28px' }}>
         {[
           { href: '/dashboard', label: 'Dashboard' },
           { href: '/tasks',     label: 'Tasks' },

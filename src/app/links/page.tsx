@@ -1,6 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface LinkCard {
   title: string
@@ -229,12 +245,13 @@ function FavIcon({ url, title }: { url?: string; title: string }) {
 }
 
 interface AddLinkModalProps {
+  open: boolean
   existingCollections: string[]
   onClose: () => void
   onAdd: (link: StoredLink) => void
 }
 
-function AddLinkModal({ existingCollections, onClose, onAdd }: AddLinkModalProps) {
+function AddLinkModal({ open, existingCollections, onClose, onAdd }: AddLinkModalProps) {
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
   const [description, setDescription] = useState('')
@@ -254,212 +271,165 @@ function AddLinkModal({ existingCollections, onClose, onAdd }: AddLinkModalProps
       favIconUrl: favIconUrl.trim() || undefined,
       collection: col,
     })
-  }
-
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '8px 10px',
-    borderRadius: 'var(--radius-sm)',
-    background: 'var(--bg-overlay)',
-    border: '0.5px solid var(--border-mid)',
-    color: 'var(--text-primary)',
-    fontSize: '13px',
-    fontFamily: 'var(--font-mono)',
-    outline: 'none',
-    boxSizing: 'border-box',
-  }
-
-  const labelStyle: React.CSSProperties = {
-    fontSize: '11px',
-    fontFamily: 'var(--font-mono)',
-    color: 'var(--text-muted)',
-    letterSpacing: '0.06em',
-    textTransform: 'uppercase',
-    marginBottom: '4px',
-    display: 'block',
+    // Reset form
+    setTitle(''); setUrl(''); setDescription(''); setFavIconUrl('')
+    setNewCollection(''); setUseNewCollection(false)
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.6)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-      }}
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div style={{
-        background: 'var(--bg-surface)',
-        border: '0.5px solid var(--border-mid)',
-        borderRadius: 'var(--radius-lg)',
-        padding: '24px',
-        width: '420px',
-        maxWidth: 'calc(100vw - 32px)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>Add Link</span>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-muted)',
-              cursor: 'pointer',
-              fontSize: '18px',
-              lineHeight: 1,
-              padding: '2px 6px',
-            }}
-          >
-            ×
-          </button>
-        </div>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose() }}>
+      <DialogContent style={{ background: 'var(--bg-surface)', border: '0.5px solid var(--border-mid)', maxWidth: '420px' }}>
+        <DialogHeader>
+          <DialogTitle style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
+            Add Link
+          </DialogTitle>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <div>
-            <label style={labelStyle}>Title *</label>
-            <input
-              style={inputStyle}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <Label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              Title *
+            </Label>
+            <Input
               value={title}
               onChange={e => setTitle(e.target.value)}
               placeholder="Link title"
               required
               autoFocus
+              style={{ background: 'var(--bg-overlay)', borderColor: 'var(--border-mid)', color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: '13px' }}
             />
           </div>
 
-          <div>
-            <label style={labelStyle}>URL *</label>
-            <input
-              style={inputStyle}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <Label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              URL *
+            </Label>
+            <Input
               value={url}
               onChange={e => setUrl(e.target.value)}
               placeholder="https://"
               required
               type="url"
+              style={{ background: 'var(--bg-overlay)', borderColor: 'var(--border-mid)', color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: '13px' }}
             />
           </div>
 
-          <div>
-            <label style={labelStyle}>Description</label>
-            <input
-              style={inputStyle}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <Label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              Description
+            </Label>
+            <Input
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="Short description (optional)"
+              style={{ background: 'var(--bg-overlay)', borderColor: 'var(--border-mid)', color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: '13px' }}
             />
           </div>
 
-          <div>
-            <label style={labelStyle}>Favicon URL</label>
-            <input
-              style={inputStyle}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <Label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              Favicon URL
+            </Label>
+            <Input
               value={favIconUrl}
               onChange={e => setFavIconUrl(e.target.value)}
               placeholder="https://example.com/favicon.ico (optional)"
+              style={{ background: 'var(--bg-overlay)', borderColor: 'var(--border-mid)', color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: '13px' }}
             />
           </div>
 
-          <div>
-            <label style={labelStyle}>Collection *</label>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
-              <button
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <Label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              Collection *
+            </Label>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <Button
                 type="button"
+                variant={!useNewCollection ? 'default' : 'outline'}
+                size="sm"
                 onClick={() => setUseNewCollection(false)}
                 style={{
                   fontSize: '11px',
                   fontFamily: 'var(--font-mono)',
-                  padding: '4px 10px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '0.5px solid var(--border-mid)',
+                  fontWeight: 600,
                   background: !useNewCollection ? 'var(--neon-blue)' : 'var(--bg-overlay)',
                   color: !useNewCollection ? '#000' : 'var(--text-muted)',
-                  cursor: 'pointer',
-                  fontWeight: 600,
+                  border: '0.5px solid var(--border-mid)',
                 }}
               >
                 Existing
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant={useNewCollection ? 'default' : 'outline'}
+                size="sm"
                 onClick={() => setUseNewCollection(true)}
                 style={{
                   fontSize: '11px',
                   fontFamily: 'var(--font-mono)',
-                  padding: '4px 10px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '0.5px solid var(--border-mid)',
+                  fontWeight: 600,
                   background: useNewCollection ? 'var(--neon-blue)' : 'var(--bg-overlay)',
                   color: useNewCollection ? '#000' : 'var(--text-muted)',
-                  cursor: 'pointer',
-                  fontWeight: 600,
+                  border: '0.5px solid var(--border-mid)',
                 }}
               >
                 New
-              </button>
+              </Button>
             </div>
             {useNewCollection ? (
-              <input
-                style={inputStyle}
+              <Input
                 value={newCollection}
                 onChange={e => setNewCollection(e.target.value)}
                 placeholder="New collection name"
                 required
+                style={{ background: 'var(--bg-overlay)', borderColor: 'var(--border-mid)', color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: '13px' }}
               />
             ) : (
-              <select
-                style={{ ...inputStyle, cursor: 'pointer' }}
-                value={collection}
-                onChange={e => setCollection(e.target.value)}
-                required
-              >
-                {existingCollections.map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
+              <Select value={collection} onValueChange={setCollection} required>
+                <SelectTrigger style={{ background: 'var(--bg-overlay)', borderColor: 'var(--border-mid)', color: 'var(--text-primary)', fontFamily: 'var(--font-mono)', fontSize: '13px' }}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent style={{ background: 'var(--bg-overlay)', borderColor: 'var(--border-mid)' }}>
+                  {existingCollections.map(c => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             )}
           </div>
 
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={onClose}
               style={{
-                padding: '8px 16px',
-                borderRadius: 'var(--radius-sm)',
-                border: '0.5px solid var(--border-mid)',
-                background: 'var(--bg-overlay)',
-                color: 'var(--text-muted)',
-                fontSize: '12px',
                 fontFamily: 'var(--font-mono)',
-                cursor: 'pointer',
+                background: 'var(--bg-overlay)',
+                borderColor: 'var(--border-mid)',
+                color: 'var(--text-muted)',
               }}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              size="sm"
               style={{
-                padding: '8px 16px',
-                borderRadius: 'var(--radius-sm)',
-                border: 'none',
-                background: 'var(--neon-blue)',
-                color: '#000',
-                fontSize: '12px',
                 fontFamily: 'var(--font-mono)',
                 fontWeight: 700,
-                cursor: 'pointer',
+                background: 'var(--neon-blue)',
+                color: '#000',
+                border: 'none',
               }}
             >
               Add Link
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -484,7 +454,6 @@ export default function LinksPage() {
     setShowModal(false)
   }
 
-  // Merge static + user-added into collections
   const collections: LinkCollection[] = [...staticCollections]
   for (const link of userLinks) {
     const existing = collections.find(c => c.title === link.collection)
@@ -525,46 +494,37 @@ export default function LinksPage() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* Search */}
-          <input
-            type="text"
-            placeholder="Search links..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{
-              padding: '8px 14px',
-              borderRadius: 'var(--radius-md)',
-              background: 'var(--bg-surface)',
-              border: '0.5px solid var(--border-mid)',
-              color: 'var(--text-primary)',
-              fontSize: '13px',
-              fontFamily: 'var(--font-mono)',
-              width: '200px',
-              outline: 'none',
-            }}
-          />
+          <div style={{ position: 'relative' }}>
+            <Input
+              type="text"
+              placeholder="Search links..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-48 h-9"
+              style={{
+                background: 'var(--bg-surface)',
+                borderColor: 'var(--border-mid)',
+                color: 'var(--text-primary)',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '13px',
+              }}
+            />
+          </div>
 
-          {/* Add Link button */}
-          <button
+          <Button
             onClick={() => setShowModal(true)}
+            size="sm"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 14px',
-              borderRadius: 'var(--radius-md)',
-              border: 'none',
               background: 'var(--neon-blue)',
               color: '#000',
-              fontSize: '12px',
               fontFamily: 'var(--font-mono)',
               fontWeight: 700,
-              cursor: 'pointer',
+              border: 'none',
               whiteSpace: 'nowrap',
             }}
           >
             + Add Link
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -575,34 +535,15 @@ export default function LinksPage() {
           return (
             <div key={col.title}>
               {/* Section header */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                marginBottom: '12px',
-              }}>
-                <div style={{
-                  width: '3px',
-                  height: '16px',
-                  borderRadius: '2px',
-                  background: accent,
-                  flexShrink: 0,
-                }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                <div style={{ width: '3px', height: '16px', borderRadius: '2px', background: accent, flexShrink: 0 }} />
                 <span style={{
-                  fontSize: '11px',
-                  fontFamily: 'var(--font-mono)',
-                  color: accent,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  fontWeight: 600,
+                  fontSize: '11px', fontFamily: 'var(--font-mono)', color: accent,
+                  letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600,
                 }}>
                   {col.title}
                 </span>
-                <span style={{
-                  fontSize: '10px',
-                  fontFamily: 'var(--font-mono)',
-                  color: 'var(--text-muted)',
-                }}>
+                <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
                   {col.cards.length}
                 </span>
               </div>
@@ -645,25 +586,16 @@ export default function LinksPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <FavIcon url={card.favIconUrl} title={card.title} />
                       <span style={{
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        color: 'var(--text-primary)',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        flex: 1,
+                        fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1,
                       }}>
                         {card.title}
                       </span>
                     </div>
                     {card.description && (
                       <span style={{
-                        fontSize: '11px',
-                        color: 'var(--text-secondary)',
-                        fontFamily: 'var(--font-mono)',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
+                        fontSize: '11px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                       }}>
                         {card.description}
                       </span>
@@ -682,13 +614,12 @@ export default function LinksPage() {
         )}
       </div>
 
-      {showModal && (
-        <AddLinkModal
-          existingCollections={collections.map(c => c.title)}
-          onClose={() => setShowModal(false)}
-          onAdd={addLink}
-        />
-      )}
+      <AddLinkModal
+        open={showModal}
+        existingCollections={collections.map(c => c.title)}
+        onClose={() => setShowModal(false)}
+        onAdd={addLink}
+      />
     </div>
   )
 }

@@ -1,3 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 237 20% 5%;
+    --foreground: 240 20% 95%;
+    --card: 237 25% 9%;
+    --card-foreground: 240 20% 95%;
+    --popover: 237 25% 11%;
+    --popover-foreground: 240 20% 95%;
+    --primary: 199 90% 60%;
+    --primary-foreground: 237 20% 5%;
+    --secondary: 237 25% 11%;
+    --secondary-foreground: 240 20% 95%;
+    --muted: 237 20% 15%;
+    --muted-foreground: 240 15% 55%;
+    --accent: 237 25% 13%;
+    --accent-foreground: 240 20% 95%;
+    --destructive: 336 90% 56%;
+    --destructive-foreground: 240 20% 95%;
+    --border: 237 25% 16%;
+    --input: 237 25% 16%;
+    --ring: 199 90% 60%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 237 20% 5%;
+    --foreground: 240 20% 95%;
+    --card: 237 25% 9%;
+    --card-foreground: 240 20% 95%;
+    --popover: 237 25% 11%;
+    --popover-foreground: 240 20% 95%;
+    --primary: 199 90% 60%;
+    --primary-foreground: 237 20% 5%;
+    --secondary: 237 25% 11%;
+    --secondary-foreground: 240 20% 95%;
+    --muted: 237 20% 15%;
+    --muted-foreground: 240 15% 55%;
+    --accent: 237 25% 13%;
+    --accent-foreground: 240 20% 95%;
+    --destructive: 336 90% 56%;
+    --destructive-foreground: 240 20% 95%;
+    --border: 237 25% 16%;
+    --input: 237 25% 16%;
+    --ring: 199 90% 60%;
+    --radius: 0.5rem;
+  }
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&display=swap');
 
 :root {
