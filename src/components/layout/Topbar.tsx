@@ -2,14 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import AppBar from '@mui/material/AppBar'
-import Toolbar from '@mui/material/Toolbar'
-import InputBase from '@mui/material/InputBase'
-import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
-import IconButton from '@mui/material/IconButton'
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
-import MenuRoundedIcon from '@mui/icons-material/MenuRounded'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Search, Menu } from 'lucide-react'
 
 interface TopbarProps {
   onMenuClick?: () => void
@@ -32,84 +27,89 @@ export default function Topbar({ onMenuClick, showMenuButton = false }: TopbarPr
   })
 
   return (
-    <AppBar position="static">
-      <Toolbar>
-        {/* Hamburger — mobile only */}
-        {showMenuButton && (
-          <IconButton
-            edge="start"
-            onClick={onMenuClick}
-            size="small"
-            sx={{ color: 'text.secondary', mr: '4px', flexShrink: 0 }}
-            aria-label="open navigation menu"
-          >
-            <MenuRoundedIcon fontSize="small" />
-          </IconButton>
-        )}
-
-        {/* Date — desktop only */}
-        {!showMenuButton && (
-          <Typography
-            variant="caption"
-            sx={{ whiteSpace: 'nowrap', color: 'text.disabled', letterSpacing: '0.06em', flexShrink: 0 }}
-          >
-            {dateStr}
-          </Typography>
-        )}
-
-        {/* Search */}
-        <Box
-          component="form"
-          onSubmit={handleSearch}
-          sx={{ flex: 1, maxWidth: showMenuButton ? '100%' : 360 }}
+    <header style={{
+      height: 'var(--topbar-h)',
+      background: 'var(--bg-surface)',
+      borderBottom: '0.5px solid var(--border-subtle)',
+      display: 'flex',
+      alignItems: 'center',
+      padding: '0 16px',
+      gap: '12px',
+      flexShrink: 0,
+    }}>
+      {/* Hamburger — mobile only */}
+      {showMenuButton && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onMenuClick}
+          className="h-8 w-8 shrink-0 text-muted-foreground"
+          aria-label="open navigation menu"
         >
-          <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <SearchRoundedIcon
-              sx={{
-                position: 'absolute',
-                left: 8,
-                fontSize: '14px',
-                color: 'text.disabled',
-                pointerEvents: 'none',
-                zIndex: 1,
-              }}
-            />
-            <InputBase
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Search KB, ideas, articles..."
-              inputProps={{ 'aria-label': 'global search' }}
-              sx={{ pl: '28px', width: '100%' }}
-            />
-          </Box>
-        </Box>
+          <Menu size={16} />
+        </Button>
+      )}
 
-        {/* Live indicator */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px', ml: 'auto', flexShrink: 0 }}>
-          <Box
-            component="span"
-            sx={{
-              width: 5,
-              height: 5,
-              borderRadius: '50%',
-              bgcolor: 'success.main',
-              animation: 'neon-pulse 2.5s ease-in-out infinite',
-              display: 'inline-block',
-              flexShrink: 0,
+      {/* Date — desktop only */}
+      {!showMenuButton && (
+        <span style={{
+          whiteSpace: 'nowrap',
+          color: 'var(--text-ghost)',
+          fontSize: '11px',
+          fontFamily: 'var(--font-mono)',
+          letterSpacing: '0.06em',
+          flexShrink: 0,
+        }}>
+          {dateStr}
+        </span>
+      )}
+
+      {/* Search */}
+      <form onSubmit={handleSearch} style={{ flex: 1, maxWidth: showMenuButton ? '100%' : 360 }}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <Search
+            size={13}
+            style={{
+              position: 'absolute',
+              left: 9,
+              color: 'var(--text-ghost)',
+              pointerEvents: 'none',
+              zIndex: 1,
             }}
           />
-          <Typography
-            variant="caption"
-            sx={{
-              color: 'text.disabled',
-              letterSpacing: '0.08em',
-              display: showMenuButton ? 'none' : 'block',
-            }}
-          >
+          <Input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search KB, ideas, articles..."
+            aria-label="global search"
+            className="pl-7 h-8 text-xs bg-transparent border-white/5 focus-visible:ring-1 focus-visible:ring-white/10"
+            style={{ fontFamily: 'var(--font-mono)' }}
+          />
+        </div>
+      </form>
+
+      {/* Live indicator */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto', flexShrink: 0 }}>
+        <span style={{
+          width: 5,
+          height: 5,
+          borderRadius: '50%',
+          background: 'var(--neon-green)',
+          animation: 'neon-pulse 2.5s ease-in-out infinite',
+          display: 'inline-block',
+          flexShrink: 0,
+        }} />
+        {!showMenuButton && (
+          <span style={{
+            color: 'var(--text-ghost)',
+            fontSize: '10px',
+            fontFamily: 'var(--font-mono)',
+            letterSpacing: '0.08em',
+          }}>
             LIVE
-          </Typography>
-        </Box>
-      </Toolbar>
-    </AppBar>
+          </span>
+        )}
+      </div>
+    </header>
   )
 }

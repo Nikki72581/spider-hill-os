@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import type { Task, TaskCategory, Priority } from '@/types'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 
 const categories = ['ALL', 'WORK', 'HOME', 'WRITING', 'PERSONAL'] as const
 const priorities: Priority[] = ['URGENT', 'HIGH', 'MEDIUM', 'LOW']
@@ -15,11 +17,11 @@ const priorityColor: Record<string, string> = {
   LOW:    'var(--text-secondary)',
 }
 
-const categoryClass: Record<string, string> = {
-  WORK:     'tag-work',
-  HOME:     'tag-home',
-  WRITING:  'tag-writing',
-  PERSONAL: 'tag-personal',
+const categoryColor: Record<string, string> = {
+  WORK:     'var(--neon-blue)',
+  HOME:     'var(--neon-green)',
+  WRITING:  'var(--neon-amber)',
+  PERSONAL: 'var(--neon-purple)',
 }
 
 function TasksContent() {
@@ -65,59 +67,56 @@ function TasksContent() {
             {visible.length} showing · {doneCount} done
           </p>
         </div>
-        <Link href="/tasks/new" style={{
-          padding: '9px 18px',
+        <Button asChild variant="outline" size="sm" style={{
           background: 'var(--neon-pink)12',
           border: '0.5px solid var(--neon-pink)44',
           color: 'var(--neon-pink)',
-          borderRadius: 'var(--radius-md)',
-          fontSize: '13px',
-          fontWeight: 600,
-          textDecoration: 'none',
+          fontFamily: 'var(--font-mono)',
         }}>
-          + New Task
-        </Link>
+          <Link href="/tasks/new">+ New Task</Link>
+        </Button>
       </div>
 
       {/* Filter bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: '4px' }}>
           {categories.map(cat => (
-            <button
+            <Button
               key={cat}
+              variant="ghost"
+              size="sm"
               onClick={() => setCategory(cat)}
               style={{
                 padding: '5px 12px',
-                borderRadius: 'var(--radius-sm)',
+                height: 'auto',
                 background: category === cat ? 'var(--bg-overlay)' : 'transparent',
                 border: category === cat ? '0.5px solid var(--border-mid)' : '0.5px solid var(--border-subtle)',
                 color: category === cat ? 'var(--text-primary)' : 'var(--text-secondary)',
                 fontSize: '11px',
                 fontFamily: 'var(--font-mono)',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
               }}
             >
               {cat.toLowerCase()}
-            </button>
+            </Button>
           ))}
         </div>
         <div style={{ marginLeft: 'auto' }}>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setShowDone(s => !s)}
             style={{
               padding: '5px 12px',
-              borderRadius: 'var(--radius-sm)',
+              height: 'auto',
               background: showDone ? 'var(--neon-green)12' : 'transparent',
               border: showDone ? '0.5px solid var(--neon-green)44' : '0.5px solid var(--border-subtle)',
               color: showDone ? 'var(--neon-green)' : 'var(--text-secondary)',
               fontSize: '11px',
               fontFamily: 'var(--font-mono)',
-              cursor: 'pointer',
             }}
           >
             {showDone ? '✓ showing done' : 'show done'}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -130,7 +129,6 @@ function TasksContent() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          {/* Group by priority */}
           {priorities.map(p => {
             const group = visible.filter(t => t.priority === p)
             if (group.length === 0) return null
@@ -163,27 +161,25 @@ function TasksContent() {
                     }}
                   >
                     {/* Checkbox */}
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       onClick={() => toggleStatus(task)}
                       style={{
                         width: '18px',
                         height: '18px',
+                        minWidth: '18px',
                         borderRadius: '4px',
                         border: `1px solid ${task.status === 'DONE' ? 'var(--neon-green)' : 'var(--border-strong)'}`,
                         background: task.status === 'DONE' ? 'var(--neon-green)22' : 'transparent',
                         color: 'var(--neon-green)',
                         fontSize: '11px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                        cursor: 'pointer',
-                        transition: 'all 0.15s',
                         padding: 0,
+                        flexShrink: 0,
                       }}
                     >
                       {task.status === 'DONE' && '✓'}
-                    </button>
+                    </Button>
 
                     {/* Title */}
                     <Link href={`/tasks/${task.id}`} style={{
@@ -198,10 +194,17 @@ function TasksContent() {
                       {task.title}
                     </Link>
 
-                    {/* Category tag */}
-                    <span className={`tag ${categoryClass[task.category]}`}>
+                    {/* Category badge */}
+                    <Badge variant="outline" style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '10px',
+                      color: categoryColor[task.category] ?? 'var(--text-secondary)',
+                      background: `${categoryColor[task.category] ?? 'var(--text-secondary)'}15`,
+                      border: `0.5px solid ${categoryColor[task.category] ?? 'var(--text-secondary)'}33`,
+                      padding: '1px 6px',
+                    }}>
                       {task.category.toLowerCase()}
-                    </span>
+                    </Badge>
 
                     {/* Due date */}
                     {task.dueDate && (

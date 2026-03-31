@@ -2,37 +2,32 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import Drawer from '@mui/material/Drawer'
-import List from '@mui/material/List'
-import ListItemButton from '@mui/material/ListItemButton'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import ListItemText from '@mui/material/ListItemText'
-import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
-import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
-// MUI Icons
-import GridViewRoundedIcon from '@mui/icons-material/GridViewRounded'
-import TaskAltRoundedIcon from '@mui/icons-material/TaskAltRounded'
-import LightbulbRoundedIcon from '@mui/icons-material/LightbulbRounded'
-import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded'
-import AutoStoriesRoundedIcon from '@mui/icons-material/AutoStoriesRounded'
-import LinkRoundedIcon from '@mui/icons-material/LinkRounded'
-import TerminalRoundedIcon from '@mui/icons-material/TerminalRounded'
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded'
-import BoltRoundedIcon from '@mui/icons-material/BoltRounded'
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
-import type { SvgIconComponent } from '@mui/icons-material'
+import {
+  LayoutDashboard,
+  CheckCircle2,
+  Lightbulb,
+  PenLine,
+  BookOpen,
+  Link2,
+  Terminal,
+  Home,
+  Zap,
+  X,
+  type LucideIcon,
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
 
-const nav: { href: string; label: string; Icon: SvgIconComponent; accent: string }[] = [
-  { href: '/dashboard', label: 'Dashboard',   Icon: GridViewRoundedIcon,    accent: '#4cc9f0' },
-  { href: '/tasks',     label: 'Tasks',        Icon: TaskAltRoundedIcon,     accent: '#f72585' },
-  { href: '/ideas',     label: 'Ideas',        Icon: LightbulbRoundedIcon,   accent: '#9b5de5' },
-  { href: '/articles',  label: 'Writing',      Icon: EditNoteRoundedIcon,    accent: '#f4a261' },
-  { href: '/kb',        label: 'Knowledge',    Icon: AutoStoriesRoundedIcon, accent: '#06d6a0' },
-  { href: '/links',     label: 'Links',        Icon: LinkRoundedIcon,        accent: '#4361ee' },
-  { href: '/dev',       label: 'Dev Activity', Icon: TerminalRoundedIcon,    accent: '#4cc9f0' },
-  { href: '/home',      label: 'Home Control', Icon: HomeRoundedIcon,         accent: '#06d6a0' },
+const nav: { href: string; label: string; Icon: LucideIcon; accent: string }[] = [
+  { href: '/dashboard', label: 'Dashboard',   Icon: LayoutDashboard, accent: '#4cc9f0' },
+  { href: '/tasks',     label: 'Tasks',        Icon: CheckCircle2,    accent: '#f72585' },
+  { href: '/ideas',     label: 'Ideas',        Icon: Lightbulb,       accent: '#9b5de5' },
+  { href: '/articles',  label: 'Writing',      Icon: PenLine,         accent: '#f4a261' },
+  { href: '/kb',        label: 'Knowledge',    Icon: BookOpen,        accent: '#06d6a0' },
+  { href: '/links',     label: 'Links',        Icon: Link2,           accent: '#4361ee' },
+  { href: '/dev',       label: 'Dev Activity', Icon: Terminal,        accent: '#4cc9f0' },
+  { href: '/home',      label: 'Home Control', Icon: Home,            accent: '#06d6a0' },
 ]
 
 interface SidebarProps {
@@ -51,122 +46,129 @@ function SidebarContent({
   pathname: string
 }) {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Logo */}
-      <Box sx={{ px: '20px', pt: '20px', mb: '28px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <Box>
-          <Typography
-            variant="overline"
-            sx={{ color: 'text.disabled', display: 'block', mb: '4px' }}
-          >
+      <div style={{ padding: '20px 20px 0', marginBottom: '28px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div>
+          <span style={{
+            display: 'block',
+            fontSize: '10px',
+            fontFamily: 'var(--font-mono)',
+            color: 'var(--text-ghost)',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            marginBottom: '4px',
+          }}>
             System
-          </Typography>
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-mono)',
-              fontWeight: 700,
-              fontSize: '18px',
-              color: 'text.primary',
-              letterSpacing: '-0.02em',
-              lineHeight: 1.2,
-            }}
-          >
+          </span>
+          <span style={{
+            display: 'block',
+            fontFamily: 'var(--font-mono)',
+            fontWeight: 700,
+            fontSize: '18px',
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.2,
+          }}>
             Spider Hill
-          </Typography>
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '11px',
-              fontWeight: 500,
-              color: 'primary.main',
-              letterSpacing: '0.1em',
-              mt: '-2px',
-            }}
-          >
+          </span>
+          <span style={{
+            display: 'block',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '11px',
+            fontWeight: 500,
+            color: 'var(--neon-cyan)',
+            letterSpacing: '0.1em',
+            marginTop: '-2px',
+          }}>
             OS v1.0
-          </Typography>
-        </Box>
+          </span>
+        </div>
         {isMobile && (
-          <IconButton
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
-            size="small"
-            sx={{ color: 'text.disabled', mt: '4px', mr: '-4px' }}
+            className="h-7 w-7 text-muted-foreground mt-1 -mr-1"
             aria-label="close menu"
           >
-            <CloseRoundedIcon fontSize="small" />
-          </IconButton>
+            <X size={14} />
+          </Button>
         )}
-      </Box>
+      </div>
 
       {/* Nav */}
-      <List sx={{ px: '10px', flex: 1 }}>
+      <nav style={{ padding: '0 10px', flex: 1 }}>
         {nav.map(({ href, label, Icon, accent }) => {
           const active = pathname.startsWith(href)
           return (
-            <ListItemButton
+            <Link
               key={href}
-              component={Link}
               href={href}
-              selected={active}
               onClick={isMobile ? onClose : undefined}
-              sx={{
-                borderLeft: `2px solid ${active ? accent : 'transparent'}`,
-                pl: '12px',
-                '&.Mui-selected': { bgcolor: 'var(--bg-elevated)' },
-                '&.Mui-selected:hover': { bgcolor: 'var(--bg-overlay)' },
-                '&:hover': { bgcolor: 'var(--bg-elevated)' },
-              }}
+              style={{ textDecoration: 'none', display: 'block' }}
             >
-              <ListItemIcon
-                sx={{
-                  color: active ? accent : 'text.disabled',
-                  '& .MuiSvgIcon-root': { fontSize: '18px' },
-                }}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '8px 12px',
+                borderRadius: 'var(--radius-sm)',
+                borderLeft: `2px solid ${active ? accent : 'transparent'}`,
+                background: active ? 'var(--bg-elevated)' : 'transparent',
+                marginBottom: '2px',
+                cursor: 'pointer',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={e => { if (!active) (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-elevated)' }}
+              onMouseLeave={e => { if (!active) (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
               >
-                <Icon />
-              </ListItemIcon>
-              <ListItemText
-                primary={label}
-                primaryTypographyProps={{
+                <Icon size={16} style={{ color: active ? accent : 'var(--text-muted)', flexShrink: 0 }} />
+                <span style={{
+                  fontSize: '13px',
                   fontWeight: active ? 600 : 400,
-                  color: active ? 'text.primary' : 'text.secondary',
-                }}
-              />
-            </ListItemButton>
+                  color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
+                }}>
+                  {label}
+                </span>
+              </div>
+            </Link>
           )
         })}
-      </List>
+      </nav>
 
-      <Divider sx={{ mx: '10px', mb: '16px' }} />
+      <Separator className="mx-2.5 mb-4" style={{ background: 'var(--border-subtle)' }} />
 
       {/* Quick capture */}
-      <Box sx={{ px: '10px', pb: '20px' }}>
-        <ListItemButton
-          component={Link}
-          href="/capture"
-          onClick={isMobile ? onClose : undefined}
-          sx={{
+      <div style={{ padding: '0 10px 20px' }}>
+        <Link href="/capture" onClick={isMobile ? onClose : undefined} style={{ textDecoration: 'none', display: 'block' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: 'center',
-            bgcolor: 'var(--bg-elevated)',
-            border: '0.5px solid var(--border-mid)',
-            borderRadius: 'var(--radius-md)',
             gap: '8px',
-            '&:hover': { bgcolor: 'var(--bg-overlay)' },
+            padding: '9px 14px',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--bg-elevated)',
+            border: '0.5px solid var(--border-mid)',
+            cursor: 'pointer',
+            transition: 'background 0.15s',
           }}
-        >
-          <BoltRoundedIcon sx={{ fontSize: '14px', color: 'var(--neon-cyan)' }} />
-          <Typography
-            sx={{
+          onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-overlay)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'var(--bg-elevated)' }}
+          >
+            <Zap size={12} style={{ color: 'var(--neon-cyan)' }} />
+            <span style={{
               fontSize: '12px',
               fontFamily: 'var(--font-mono)',
-              color: 'text.secondary',
-            }}
-          >
-            Quick capture
-          </Typography>
-        </ListItemButton>
-      </Box>
-    </Box>
+              color: 'var(--text-secondary)',
+            }}>
+              Quick capture
+            </span>
+          </div>
+        </Link>
+      </div>
+    </div>
   )
 }
 
@@ -175,21 +177,34 @@ export default function Sidebar({ mobileOpen = false, onClose, isMobile = false 
 
   if (isMobile) {
     return (
-      <Drawer
-        variant="temporary"
-        open={mobileOpen}
-        onClose={onClose}
-        sx={{ zIndex: 1300 }}
-        ModalProps={{ keepMounted: true }}
-      >
-        <SidebarContent isMobile pathname={pathname} onClose={onClose} />
-      </Drawer>
+      <Sheet open={mobileOpen} onOpenChange={(open) => { if (!open) onClose?.() }}>
+        <SheetContent
+          side="left"
+          className="p-0 border-r"
+          style={{
+            width: 'var(--sidebar-w)',
+            background: 'var(--bg-surface)',
+            borderColor: 'var(--border-subtle)',
+          }}
+        >
+          <SidebarContent isMobile pathname={pathname} onClose={onClose} />
+        </SheetContent>
+      </Sheet>
     )
   }
 
   return (
-    <Drawer variant="permanent" sx={{ zIndex: 100 }}>
+    <aside style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      bottom: 0,
+      width: 'var(--sidebar-w)',
+      background: 'var(--bg-surface)',
+      borderRight: '0.5px solid var(--border-subtle)',
+      zIndex: 100,
+    }}>
       <SidebarContent isMobile={false} pathname={pathname} />
-    </Drawer>
+    </aside>
   )
 }

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import type { Idea, IdeaStatus } from '@/types'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 
 const statuses: { key: IdeaStatus | 'ALL'; label: string; color: string }[] = [
   { key: 'ALL',        label: 'All',        color: 'var(--text-primary)'  },
@@ -19,11 +21,11 @@ const statusColor: Record<string, string> = {
   PARKED:     'var(--text-muted)',
 }
 
-const categoryClass: Record<string, string> = {
-  WORK:     'tag-work',
-  HOME:     'tag-home',
-  WRITING:  'tag-writing',
-  PERSONAL: 'tag-personal',
+const categoryColor: Record<string, string> = {
+  WORK:     'var(--neon-blue)',
+  HOME:     'var(--neon-green)',
+  WRITING:  'var(--neon-amber)',
+  PERSONAL: 'var(--neon-purple)',
 }
 
 export default function IdeasPage() {
@@ -48,36 +50,36 @@ export default function IdeasPage() {
             {ideas.filter(i => i.status !== 'PARKED').length} active · {ideas.filter(i => i.status === 'READY').length} ready to develop
           </p>
         </div>
-        <Link href="/ideas/new" style={{
-          padding: '9px 18px',
+        <Button asChild variant="outline" size="sm" style={{
           background: 'var(--neon-purple)12',
           border: '0.5px solid var(--neon-purple)44',
           color: 'var(--neon-purple)',
-          borderRadius: 'var(--radius-md)',
-          fontSize: '13px',
-          fontWeight: 600,
-          textDecoration: 'none',
+          fontFamily: 'var(--font-mono)',
         }}>
-          + Capture Idea
-        </Link>
+          <Link href="/ideas/new">+ Capture Idea</Link>
+        </Button>
       </div>
 
       {/* Status filter */}
       <div style={{ display: 'flex', gap: '4px', marginBottom: '20px' }}>
         {statuses.map(s => (
-          <button key={s.key} onClick={() => setFilter(s.key)} style={{
-            padding: '5px 14px',
-            borderRadius: 'var(--radius-sm)',
-            background: filter === s.key ? 'var(--bg-overlay)' : 'transparent',
-            border: filter === s.key ? `0.5px solid ${s.color}55` : '0.5px solid var(--border-subtle)',
-            color: filter === s.key ? s.color : 'var(--text-secondary)',
-            fontSize: '11px',
-            fontFamily: 'var(--font-mono)',
-            cursor: 'pointer',
-            transition: 'all 0.15s',
-          }}>
+          <Button
+            key={s.key}
+            variant="ghost"
+            size="sm"
+            onClick={() => setFilter(s.key)}
+            style={{
+              padding: '5px 14px',
+              height: 'auto',
+              background: filter === s.key ? 'var(--bg-overlay)' : 'transparent',
+              border: filter === s.key ? `0.5px solid ${s.color}55` : '0.5px solid var(--border-subtle)',
+              color: filter === s.key ? s.color : 'var(--text-secondary)',
+              fontSize: '11px',
+              fontFamily: 'var(--font-mono)',
+            }}
+          >
             {s.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -115,20 +117,29 @@ export default function IdeasPage() {
 
                 {/* Linked article indicator */}
                 {idea.article && (
-                  <span style={{
-                    fontSize: '10px', fontFamily: 'var(--font-mono)',
-                    color: 'var(--neon-amber)', background: 'var(--neon-amber)10',
-                    padding: '2px 8px', borderRadius: '4px',
+                  <Badge variant="outline" style={{
+                    fontSize: '10px',
+                    fontFamily: 'var(--font-mono)',
+                    color: 'var(--neon-amber)',
+                    background: 'var(--neon-amber)10',
                     border: '0.5px solid var(--neon-amber)33',
+                    padding: '2px 8px',
                   }}>
                     → article
-                  </span>
+                  </Badge>
                 )}
 
                 {/* Category */}
-                <span className={`tag ${categoryClass[idea.category]}`}>
+                <Badge variant="outline" style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '10px',
+                  color: categoryColor[idea.category] ?? 'var(--text-secondary)',
+                  background: `${categoryColor[idea.category] ?? 'var(--text-secondary)'}15`,
+                  border: `0.5px solid ${categoryColor[idea.category] ?? 'var(--text-secondary)'}33`,
+                  padding: '1px 6px',
+                }}>
                   {idea.category.toLowerCase()}
-                </span>
+                </Badge>
 
                 {/* Status */}
                 <span style={{

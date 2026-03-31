@@ -4,8 +4,10 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import type { KBEntry, KBDomain } from '@/types'
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
-import AutoStoriesRoundedIcon from '@mui/icons-material/AutoStoriesRounded'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Search, BookOpen } from 'lucide-react'
 
 const domains: { key: KBDomain | 'ALL'; label: string; color: string }[] = [
   { key: 'ALL',      label: 'All',      color: 'var(--text-primary)'  },
@@ -32,7 +34,7 @@ function KBContent() {
   const fetchEntries = useCallback(async () => {
     setLoading(true)
     const params = new URLSearchParams()
-    if (query)          params.set('q', query)
+    if (query)           params.set('q', query)
     if (domain !== 'ALL') params.set('domain', domain)
 
     const res = await fetch(`/api/kb?${params}`)
@@ -51,61 +53,62 @@ function KBContent() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
         <div>
           <h1 style={{ fontWeight: 700, fontSize: '24px', letterSpacing: '-0.02em', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <AutoStoriesRoundedIcon style={{ fontSize: 22, color: 'var(--neon-green)' }} />
+            <BookOpen size={20} style={{ color: 'var(--neon-green)' }} />
             Knowledge Base
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
             {entries.length} entries
           </p>
         </div>
-        <Link href="/kb/new" style={{
-          padding: '9px 18px',
+        <Button asChild variant="outline" size="sm" style={{
           background: 'var(--neon-green)12',
           border: '0.5px solid var(--neon-green)44',
           color: 'var(--neon-green)',
-          borderRadius: 'var(--radius-md)',
-          fontSize: '13px',
-          fontWeight: 600,
+          fontFamily: 'var(--font-mono)',
         }}>
-          + New Entry
-        </Link>
+          <Link href="/kb/new">+ New Entry</Link>
+        </Button>
       </div>
 
       {/* Search + filter */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', alignItems: 'center' }}>
         <div style={{ flex: 1, position: 'relative' }}>
-          <SearchRoundedIcon style={{
-            position: 'absolute', left: '10px', top: '50%',
-            transform: 'translateY(-50%)', color: 'var(--text-secondary)', fontSize: '16px',
-            pointerEvents: 'none',
-          }} />
-          <input
+          <Search
+            size={14}
+            style={{
+              position: 'absolute', left: '10px', top: '50%',
+              transform: 'translateY(-50%)', color: 'var(--text-secondary)',
+              pointerEvents: 'none', zIndex: 1,
+            }}
+          />
+          <Input
             type="text"
             placeholder="Search entries, tags..."
             value={query}
             onChange={e => setQuery(e.target.value)}
-            style={{ paddingLeft: '32px' }}
+            className="pl-8 h-9 bg-transparent border-white/5 focus-visible:ring-1 focus-visible:ring-white/10"
+            style={{ fontFamily: 'var(--font-mono)', fontSize: '13px' }}
           />
         </div>
         <div style={{ display: 'flex', gap: '4px' }}>
           {domains.map(d => (
-            <button
+            <Button
               key={d.key}
+              variant="ghost"
+              size="sm"
               onClick={() => setDomain(d.key)}
               style={{
-                padding: '6px 12px',
-                borderRadius: 'var(--radius-sm)',
+                padding: '5px 12px',
+                height: 'auto',
                 background: domain === d.key ? 'var(--bg-overlay)' : 'transparent',
                 border: domain === d.key ? `0.5px solid ${d.color}55` : '0.5px solid var(--border-subtle)',
                 color: domain === d.key ? d.color : 'var(--text-secondary)',
                 fontSize: '11px',
                 fontFamily: 'var(--font-mono)',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
               }}
             >
               {d.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -136,21 +139,18 @@ function KBContent() {
                   marginBottom: '8px',
                 }}>
                   <h3 style={{ fontSize: '14px', fontWeight: 600, lineHeight: 1.4, color: 'var(--text-primary)' }}>{entry.title}</h3>
-                  <span style={{
+                  <Badge variant="outline" style={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '9px',
                     letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
                     color: domainColor[entry.domain],
                     background: `${domainColor[entry.domain]}15`,
                     border: `0.5px solid ${domainColor[entry.domain]}33`,
-                    padding: '2px 6px',
-                    borderRadius: '4px',
                     flexShrink: 0,
                     marginTop: '2px',
                   }}>
                     {entry.domain}
-                  </span>
+                  </Badge>
                 </div>
 
                 <p style={{
@@ -169,7 +169,7 @@ function KBContent() {
                 {entry.tags.length > 0 && (
                   <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                     {entry.tags.slice(0, 4).map(tag => (
-                      <span key={tag} style={{
+                      <Badge key={tag} variant="secondary" style={{
                         fontFamily: 'var(--font-mono)',
                         fontSize: '10px',
                         color: 'var(--text-secondary)',
@@ -179,7 +179,7 @@ function KBContent() {
                         borderRadius: '3px',
                       }}>
                         #{tag}
-                      </span>
+                      </Badge>
                     ))}
                   </div>
                 )}

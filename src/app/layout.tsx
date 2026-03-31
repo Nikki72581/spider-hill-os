@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import ThemeRegistry from '@/components/ThemeRegistry'
 import AppShell from '@/components/layout/AppShell'
 
 export const metadata: Metadata = {
@@ -14,11 +13,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body>
-        <ThemeRegistry>
-          <AppShell>{children}</AppShell>
-        </ThemeRegistry>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   )
