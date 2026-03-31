@@ -7,8 +7,6 @@ const ZONES = [
   { label: 'Chicago',     tz: 'America/Chicago',     abbr: 'CT' },
   { label: 'Denver',      tz: 'America/Denver',      abbr: 'MT' },
   { label: 'Los Angeles', tz: 'America/Los_Angeles', abbr: 'PT' },
-  { label: 'Anchorage',   tz: 'America/Anchorage',   abbr: 'AKT' },
-  { label: 'Honolulu',    tz: 'Pacific/Honolulu',    abbr: 'HT' },
 ]
 
 function getGreeting(hour: number): string {
@@ -20,10 +18,10 @@ function getGreeting(hour: number): string {
 function formatTime(date: Date, tz: string): string {
   return date.toLocaleTimeString('en-US', {
     timeZone: tz,
-    hour:     '2-digit',
+    hour:     'numeric',
     minute:   '2-digit',
     second:   '2-digit',
-    hour12:   false,
+    hour12:   true,
   })
 }
 

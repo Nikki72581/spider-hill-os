@@ -18,9 +18,14 @@ function useIsMobile(breakpoint = 900) {
   return isMobile
 }
 
+const SIDEBAR_COLLAPSED_W = '56px'
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const isMobile = useIsMobile()
+
+  const desktopMargin = sidebarCollapsed ? SIDEBAR_COLLAPSED_W : 'var(--sidebar-w)'
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
@@ -28,6 +33,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         mobileOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         isMobile={isMobile}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(c => !c)}
       />
       <div
         style={{
@@ -35,7 +42,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          marginLeft: isMobile ? 0 : 'var(--sidebar-w)',
+          marginLeft: isMobile ? 0 : desktopMargin,
           transition: 'margin-left 0.25s ease',
         }}
       >

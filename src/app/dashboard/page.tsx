@@ -177,6 +177,9 @@ export default async function DashboardPage() {
         {/* Right column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
+          {/* Weather */}
+          <WeatherWidget />
+
           {/* Writing pipeline */}
           <div className="card">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
@@ -272,8 +275,6 @@ export default async function DashboardPage() {
             ))}
           </div>
 
-          {/* Weather */}
-          <WeatherWidget />
 
         </div>
       </div>
