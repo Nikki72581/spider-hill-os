@@ -5,15 +5,6 @@ import type { Light } from '@/app/api/home/lights/route'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface ThermostatData {
-  ambientF: number | null
-  humidity: number | null
-  hvacStatus: 'HEATING' | 'COOLING' | 'OFF'
-  mode: 'HEAT' | 'COOL' | 'HEATCOOL' | 'OFF'
-  targetF: number | null
-  room: string
-}
-
 interface LightsData {
   lights: Light[]
   rooms: Record<string, Light[]>
@@ -28,18 +19,6 @@ interface NetworkData {
 type Status<T> = { state: 'loading' } | { state: 'error'; msg: string } | { state: 'ok'; data: T }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function hvacColor(status: string) {
-  if (status === 'HEATING') return 'var(--neon-amber)'
-  if (status === 'COOLING') return 'var(--neon-cyan)'
-  return 'var(--text-muted)'
-}
-
-function hvacLabel(status: string) {
-  if (status === 'HEATING') return 'heating'
-  if (status === 'COOLING') return 'cooling'
-  return 'idle'
-}
 
 function latencyColor(ms: number) {
   if (ms < 80)  return 'var(--neon-green)'
@@ -85,141 +64,37 @@ function SetupCard({ title, steps }: { title: string; steps: string[] }) {
   )
 }
 
-// ─── Thermostat card ──────────────────────────────────────────────────────────
+// ─── Google Home card ─────────────────────────────────────────────────────────
 
-function ThermostatCard() {
-  const [status, setStatus] = useState<Status<ThermostatData>>({ state: 'loading' })
+const GOOGLE_HOME_URL = 'https://home.google.com/home/1-4bfc5f340c621c2a5bbb4d96147620f98d06c67047fe2dc72f590e014c100834/devices'
 
-  useEffect(() => {
-    fetch('/api/home/thermostat')
-      .then(r => r.json())
-      .then(data => {
-        if (data.error === 'not_configured') {
-          setStatus({ state: 'error', msg: 'not_configured' })
-        } else if (data.error) {
-          setStatus({ state: 'error', msg: data.error })
-        } else {
-          setStatus({ state: 'ok', data })
-        }
-      })
-      .catch(() => setStatus({ state: 'error', msg: 'fetch failed' }))
-  }, [])
-
-  if (status.state === 'loading') return (
-    <div className="card" style={{ minHeight: 160, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)', animation: 'neon-pulse 1.5s ease-in-out infinite' }}>
-        reading thermostat…
-      </span>
-    </div>
-  )
-
-  if (status.state === 'error' && status.msg === 'not_configured') return (
-    <SetupCard
-      title="nest thermostat"
-      steps={[
-        'Go to console.nest.google.com and create a Device Access project ($5 one-time fee)',
-        'In Google Cloud Console, create an OAuth 2.0 Client ID (Web application)',
-        'Run the OAuth flow to obtain a refresh token',
-        'Add to .env.local: NEST_PROJECT_ID, NEST_CLIENT_ID, NEST_CLIENT_SECRET, NEST_REFRESH_TOKEN',
-      ]}
-    />
-  )
-
-  if (status.state === 'error') return (
-    <div className="card">
-      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--neon-pink)' }}>
-        thermostat unavailable — {status.msg}
-      </span>
-    </div>
-  )
-
-  const { ambientF, humidity, hvacStatus, targetF, room } = status.data
+function GoogleHomeCard() {
+  const [blocked, setBlocked] = useState(false)
 
   return (
-    <div className="card">
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          {room.toLowerCase()}
-        </span>
-        <span style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: '10px',
-          color: hvacColor(hvacStatus),
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '5px',
-        }}>
-          <span style={{
-            width: 6, height: 6, borderRadius: '50%',
-            background: hvacColor(hvacStatus),
-            display: 'inline-block',
-            animation: hvacStatus !== 'OFF' ? 'neon-pulse 2s ease-in-out infinite' : undefined,
-          }} />
-          {hvacLabel(hvacStatus)}
-        </span>
-      </div>
-
-      {/* Temp */}
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '24px', marginBottom: '20px' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-            <span style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '64px',
-              fontWeight: 700,
-              lineHeight: 1,
-              letterSpacing: '-0.04em',
-              color: 'var(--text-primary)',
-            }}>
-              {ambientF ?? '—'}
-            </span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '20px', color: 'var(--text-secondary)', marginBottom: '6px' }}>°F</span>
-          </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            ambient
-          </div>
+    <div className="card" style={{ padding: 0, overflow: 'hidden', minHeight: '600px', position: 'relative' }}>
+      {blocked ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '200px', gap: '12px' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--neon-pink)' }}>
+            google home blocked embedding
+          </span>
+          <a
+            href={GOOGLE_HOME_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--neon-cyan)', textDecoration: 'none', letterSpacing: '0.06em' }}
+          >
+            open in new tab →
+          </a>
         </div>
-
-        <div style={{ paddingBottom: '18px' }}>
-          {targetF != null && (
-            <div style={{ marginBottom: '8px' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '22px', fontWeight: 700, color: hvacColor(hvacStatus), lineHeight: 1 }}>
-                {targetF}°
-              </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                target
-              </div>
-            </div>
-          )}
-          {humidity != null && (
-            <div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', fontWeight: 600, color: 'var(--neon-blue)', lineHeight: 1 }}>
-                {humidity}%
-              </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                humidity
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Mode bar */}
-      <div style={{
-        background: 'var(--bg-elevated)',
-        borderRadius: 'var(--radius-sm)',
-        padding: '8px 12px',
-        fontFamily: 'var(--font-mono)',
-        fontSize: '11px',
-        color: 'var(--text-secondary)',
-        letterSpacing: '0.06em',
-        border: '0.5px solid var(--border-subtle)',
-      }}>
-        mode: <span style={{ color: 'var(--text-primary)' }}>{status.data.mode.toLowerCase()}</span>
-      </div>
+      ) : (
+        <iframe
+          src={GOOGLE_HOME_URL}
+          style={{ width: '100%', height: '600px', border: 'none', display: 'block' }}
+          onError={() => setBlocked(true)}
+          title="Google Home"
+        />
+      )}
     </div>
   )
 }
@@ -479,22 +354,22 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Top row: thermostat + network */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '16px', marginBottom: '28px', alignItems: 'start' }}>
-        <div>
-          <SectionLabel>thermostat</SectionLabel>
-          <ThermostatCard />
-        </div>
+      {/* Google Home */}
+      <div style={{ marginBottom: '28px' }}>
+        <SectionLabel>google home</SectionLabel>
+        <GoogleHomeCard />
+      </div>
+
+      {/* Bottom row: network + lights */}
+      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '16px', alignItems: 'start' }}>
         <div>
           <SectionLabel>connectivity</SectionLabel>
           <NetworkCard />
         </div>
-      </div>
-
-      {/* Lights */}
-      <div>
-        <SectionLabel>lights</SectionLabel>
-        <LightsCard />
+        <div>
+          <SectionLabel>lights</SectionLabel>
+          <LightsCard />
+        </div>
       </div>
     </div>
   )
