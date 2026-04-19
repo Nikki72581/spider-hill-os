@@ -35,7 +35,7 @@
     "lucide-react": "^1.7.0",
     "next": "14.2.4",
     "next-auth": "^4.24.7",
-    "node-ical": "^0.26.0",
+    "node-ical": "^0.25.6",
     "react": "^18",
     "react-dom": "^18",
     "react-markdown": "^9.0.1",
