@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { signIn, signOut, useSession } from 'next-auth/react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Search, Menu } from 'lucide-react'
@@ -14,6 +15,7 @@ interface TopbarProps {
 export default function Topbar({ onMenuClick, showMenuButton = false }: TopbarProps) {
   const [query, setQuery] = useState('')
   const router = useRouter()
+  const { data: session, status } = useSession()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -87,6 +89,48 @@ export default function Topbar({ onMenuClick, showMenuButton = false }: TopbarPr
           />
         </div>
       </form>
+
+      {/* O365 auth */}
+      {status !== 'loading' && (
+        session ? (
+          <button
+            onClick={() => signOut()}
+            title={`Signed in as ${session.user?.email}`}
+            style={{
+              background: 'transparent',
+              border: '1px solid var(--border-mid)',
+              color: 'var(--pip-green, #0CFF70)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: 10,
+              letterSpacing: '0.1em',
+              padding: '4px 8px',
+              cursor: 'pointer',
+              flexShrink: 0,
+              textTransform: 'uppercase',
+            }}
+          >
+            ◉ O365
+          </button>
+        ) : (
+          <button
+            onClick={() => signIn('azure-ad')}
+            style={{
+              background: 'transparent',
+              border: '1px solid var(--border-subtle)',
+              color: 'var(--text-muted)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: 10,
+              letterSpacing: '0.1em',
+              padding: '4px 8px',
+              cursor: 'pointer',
+              flexShrink: 0,
+              textTransform: 'uppercase',
+            }}
+          >
+            ○ O365
+          </button>
+        )
+      )}
 
       {/* Live indicator */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto', flexShrink: 0 }}>
