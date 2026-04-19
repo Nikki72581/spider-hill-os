@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { parseICS } from '@/lib/ics'
 
+export const dynamic = 'force-dynamic'
+
 export type CalendarEvent = {
   id: string
   title: string
