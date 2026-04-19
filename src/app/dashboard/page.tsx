@@ -1,283 +1,76 @@
 import { prisma } from '@/lib/prisma'
-import { isToday } from 'date-fns'
-import Link from 'next/link'
+import { isToday, subDays, startOfDay } from 'date-fns'
+import EnergyGauge from '@/components/dashboard-v2/EnergyGauge'
+import StreakXP from '@/components/dashboard-v2/StreakXP'
+import OneThingCard from '@/components/dashboard-v2/OneThingCard'
+import Lane from '@/components/dashboard-v2/Lane'
+import InboxTriage from '@/components/dashboard-v2/InboxTriage'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
-import WeatherWidget from '@/components/dashboard/WeatherWidget'
-import { ClipboardList, PenLine, Lightbulb, ArrowRight } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
-async function getDashboardData() {
-  const [tasks, ideas, articles, kbCount] = await Promise.all([
+async function getData() {
+  const [tasks, inbox, completions] = await Promise.all([
     prisma.task.findMany({
       where: { status: { in: ['OPEN', 'IN_PROGRESS'] } },
-      orderBy: [{ priority: 'desc' }, { dueDate: 'asc' }],
-      take: 8,
+      orderBy: [{ bucket: 'asc' }, { dueDate: 'asc' }, { priority: 'desc' }],
     }),
-    prisma.idea.findMany({
-      where: { status: { not: 'PARKED' } },
+    prisma.inboxItem.findMany({
+      where: { status: 'pending' },
       orderBy: { createdAt: 'desc' },
-      take: 5,
+      take: 6,
     }),
-    prisma.article.findMany({
-      where: { status: { in: ['DRAFTING', 'EDITING', 'OUTLINE'] } },
-      orderBy: { updatedAt: 'desc' },
-      take: 4,
+    prisma.task.findMany({
+      where: { status: 'DONE', completedAt: { gte: subDays(startOfDay(new Date()), 14) } },
+      select: { completedAt: true },
     }),
-    prisma.kBEntry.count(),
   ])
 
-  const dueToday = tasks.filter(t => t.dueDate && isToday(new Date(t.dueDate))).length
+  const dayCounts: number[] = Array.from({ length: 14 }, () => 0)
+  const today = startOfDay(new Date())
+  completions.forEach(c => {
+    if (!c.completedAt) return
+    const diff = Math.floor((today.getTime() - startOfDay(c.completedAt).getTime()) / 86400000)
+    if (diff >= 0 && diff < 14) dayCounts[13 - diff]++
+  })
+  let streak = 0
+  for (let i = 13; i >= 0; i--) { if (dayCounts[i] > 0) streak++; else break }
 
-  return { tasks, ideas, articles, kbCount, dueToday }
-}
-
-const priorityColor: Record<string, string> = {
-  URGENT: 'var(--neon-pink)',
-  HIGH:   'var(--neon-amber)',
-  MEDIUM: 'var(--neon-blue)',
-  LOW:    'var(--text-muted)',
-}
-
-const categoryClass: Record<string, string> = {
-  WORK:     'tag-work',
-  HOME:     'tag-home',
-  WRITING:  'tag-writing',
-  PERSONAL: 'tag-personal',
-}
-
-const articleStatusColor: Record<string, string> = {
-  OUTLINE:  'var(--neon-blue)',
-  DRAFTING: 'var(--neon-amber)',
-  EDITING:  'var(--neon-purple)',
+  return {
+    now:   tasks.filter(t => t.bucket === 'NOW'),
+    next:  tasks.filter(t => t.bucket === 'NEXT'),
+    later: tasks.filter(t => t.bucket === 'LATER'),
+    dueToday: tasks.filter(t => t.dueDate && isToday(new Date(t.dueDate))).length,
+    inbox,
+    dayCounts,
+    streak,
+  }
 }
 
 export default async function DashboardPage() {
-  const { tasks, ideas, articles, kbCount, dueToday } = await getDashboardData()
+  const { now, next, later, inbox, dayCounts, streak } = await getData()
+  const oneThing = now[0] ?? next[0] ?? null
 
   return (
-    <div style={{ maxWidth: '1100px' }}>
+    <div style={{ maxWidth: 1280 }}>
       <DashboardHeader />
 
-      {/* Stats row */}
-      <div className="grid-stats">
-        {[
-          { label: 'Open tasks',   value: tasks.length,  color: 'var(--neon-pink)',   href: '/tasks' },
-          { label: 'Due today',    value: dueToday,      color: 'var(--neon-amber)',  href: '/tasks?filter=today' },
-          { label: 'Active ideas', value: ideas.length,  color: 'var(--neon-purple)', href: '/ideas' },
-          { label: 'KB entries',   value: kbCount,       color: 'var(--neon-green)',  href: '/kb' },
-        ].map(({ label, value, color, href }) => (
-          <Link key={label} href={href} style={{ textDecoration: 'none' }}>
-            <div className="card" style={{
-              borderColor: `${color}22`,
-              cursor: 'pointer',
-            }}>
-              <div style={{
-                fontSize: '32px',
-                fontWeight: 800,
-                color,
-                fontFamily: 'var(--font-mono)',
-                lineHeight: 1,
-                marginBottom: '6px',
-              }}>
-                {String(value).padStart(2, '0')}
-              </div>
-              <div style={{
-                fontSize: '11px',
-                color: 'var(--text-muted)',
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                fontFamily: 'var(--font-mono)',
-              }}>
-                {label}
-              </div>
-            </div>
-          </Link>
-        ))}
+      {/* HUD row */}
+      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr 1fr', gap: 12, marginBottom: 18 }}>
+        <EnergyGauge />
+        <StreakXP streak={streak} dayCounts={dayCounts} />
+        <OneThingCard task={oneThing} />
       </div>
 
-      {/* Main grid */}
-      <div className="grid-dashboard-main">
-        {/* Tasks */}
-        <div className="card">
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '16px',
-          }}>
-            <h2 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--neon-pink)', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ClipboardList size={14} /> Open Tasks
-            </h2>
-            <Link href="/tasks/new" style={{
-              fontSize: '11px',
-              fontFamily: 'var(--font-mono)',
-              color: 'var(--neon-pink)',
-              padding: '4px 10px',
-              border: '0.5px solid var(--neon-pink)44',
-              borderRadius: 'var(--radius-sm)',
-              background: 'var(--neon-pink)08',
-            }}>
-              + Add
-            </Link>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            {tasks.length === 0 && (
-              <p style={{ color: 'var(--text-muted)', fontSize: '13px', padding: '12px 0' }}>No open tasks. Nice.</p>
-            )}
-            {tasks.map(task => (
-              <Link key={task.id} href={`/tasks/${task.id}`} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '9px 10px',
-                borderRadius: 'var(--radius-sm)',
-                background: 'transparent',
-                transition: 'background 0.1s',
-                textDecoration: 'none',
-                cursor: 'pointer',
-              }}>
-                {/* Priority dot */}
-                <span style={{
-                  width: '5px',
-                  height: '5px',
-                  borderRadius: '50%',
-                  background: priorityColor[task.priority],
-                  flexShrink: 0,
-                }} />
-                <span style={{
-                  flex: 1,
-                  fontSize: '13px',
-                  color: task.status === 'DONE' ? 'var(--text-muted)' : 'var(--text-primary)',
-                  textDecoration: task.status === 'DONE' ? 'line-through' : 'none',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}>
-                  {task.title}
-                </span>
-                <span className={`tag ${categoryClass[task.category]}`}>
-                  {task.category.toLowerCase()}
-                </span>
-                {task.dueDate && (
-                  <span style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '10px',
-                    color: isToday(new Date(task.dueDate)) ? 'var(--neon-amber)' : 'var(--text-secondary)',
-                  }}>
-                    {new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </span>
-                )}
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Right column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-          {/* Weather */}
-          <WeatherWidget />
-
-          {/* Writing pipeline */}
-          <div className="card">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-              <h2 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--neon-amber)', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <PenLine size={14} /> Writing Pipeline
-              </h2>
-              <Link href="/articles/new" style={{
-                fontSize: '11px',
-                fontFamily: 'var(--font-mono)',
-                color: 'var(--neon-amber)',
-                padding: '4px 10px',
-                border: '0.5px solid var(--neon-amber)44',
-                borderRadius: 'var(--radius-sm)',
-                background: 'var(--neon-amber)08',
-              }}>+ New</Link>
-            </div>
-            {articles.length === 0 && (
-              <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>No articles in progress.</p>
-            )}
-            {articles.map(article => (
-              <Link key={article.id} href={`/articles/${article.id}`} style={{
-                display: 'block',
-                padding: '10px 0',
-                borderBottom: '0.5px solid var(--border-subtle)',
-                textDecoration: 'none',
-              }}>
-                <div style={{ fontSize: '13px', color: 'var(--text-primary)', marginBottom: '4px' }}>
-                  {article.title}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '10px',
-                    color: articleStatusColor[article.status] ?? 'var(--text-muted)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                  }}>
-                    {article.status.toLowerCase()}
-                  </span>
-                  {article.platform && (
-                    <span style={{ fontSize: '10px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                      <ArrowRight size={10} />{article.platform}
-                    </span>
-                  )}
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* Ideas */}
-          <div className="card">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-              <h2 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--neon-purple)', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Lightbulb size={14} /> Ideas
-              </h2>
-              <Link href="/ideas/new" style={{
-                fontSize: '11px',
-                fontFamily: 'var(--font-mono)',
-                color: 'var(--neon-purple)',
-                padding: '4px 10px',
-                border: '0.5px solid var(--neon-purple)44',
-                borderRadius: 'var(--radius-sm)',
-                background: 'var(--neon-purple)08',
-              }}>+ Capture</Link>
-            </div>
-            {ideas.map(idea => (
-              <Link key={idea.id} href={`/ideas/${idea.id}`} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 0',
-                borderBottom: '0.5px solid var(--border-subtle)',
-                textDecoration: 'none',
-              }}>
-                <span style={{
-                  width: '4px',
-                  height: '4px',
-                  borderRadius: '50%',
-                  background: 'var(--neon-purple)',
-                  flexShrink: 0,
-                }} />
-                <span style={{ fontSize: '13px', color: 'var(--text-primary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {idea.title}
-                </span>
-                <span style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '10px',
-                  color: 'var(--text-secondary)',
-                }}>
-                  {idea.status.toLowerCase()}
-                </span>
-              </Link>
-            ))}
-          </div>
-
-
-        </div>
+      {/* NOW / NEXT / LATER lanes */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
+        <Lane bucket="NOW"   tasks={now} />
+        <Lane bucket="NEXT"  tasks={next} />
+        <Lane bucket="LATER" tasks={later} />
       </div>
+
+      {/* AI triage inbox */}
+      <InboxTriage items={inbox} />
     </div>
   )
 }

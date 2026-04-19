@@ -51,6 +51,12 @@ enum KBDomain {
   PERSONAL
 }
 
+enum TaskBucket {
+  NOW
+  NEXT
+  LATER
+}
+
 model Task {
   id          String       @id @default(cuid())
   title       String
@@ -58,6 +64,11 @@ model Task {
   status      TaskStatus   @default(OPEN)
   category    TaskCategory @default(WORK)
   priority    Priority     @default(MEDIUM)
+  bucket      TaskBucket   @default(LATER)
+  energy      Int          @default(2)
+  minutes     Int?
+  startedAt   DateTime?
+  completedAt DateTime?
   dueDate     DateTime?
   tags        String[]
   article     Article?     @relation(fields: [articleId], references: [id])
@@ -103,4 +114,32 @@ model KBEntry {
   tags        String[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model InboxItem {
+  id          String        @id @default(cuid())
+  raw         String
+  source      String        @default("text")
+  aiTitle     String?
+  aiCategory  TaskCategory?
+  aiBucket    TaskBucket?
+  aiEnergy    Int?
+  aiMinutes   Int?
+  aiDueDate   DateTime?
+  aiReason    String?
+  aiSimilarId String?
+  status      String        @default("pending")
+  acceptedAt  DateTime?
+  createdAt   DateTime      @default(now())
+}
+
+model FocusSession {
+  id          String   @id @default(cuid())
+  taskId      String?
+  startedAt   DateTime @default(now())
+  endedAt     DateTime?
+  plannedMin  Int      @default(25)
+  actualMin   Int?
+  distractions Int     @default(0)
+  xpAwarded   Int      @default(0)
 }

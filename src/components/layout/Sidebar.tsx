@@ -12,6 +12,8 @@ import {
   Terminal,
   Home,
   Zap,
+  Timer,
+  BrainCircuit,
   X,
   ChevronLeft,
   ChevronRight,
@@ -30,6 +32,8 @@ const nav: { href: string; label: string; Icon: LucideIcon; accent: string }[] =
   { href: '/links',     label: 'Links',        Icon: Link2,           accent: '#0CFF70' },
   { href: '/dev',       label: 'Dev Activity', Icon: Terminal,        accent: '#4AFF91' },
   { href: '/home',      label: 'Home Control', Icon: Home,            accent: '#0CFF70' },
+  { href: '/focus',     label: 'Focus.now',    Icon: Timer,           accent: '#FF3333' },
+  { href: '/capture',   label: 'Brain Dump',   Icon: BrainCircuit,    accent: '#FFB000' },
 ]
 
 interface SidebarProps {
