@@ -69,33 +69,50 @@ function SetupCard({ title, steps }: { title: string; steps: string[] }) {
 const GOOGLE_HOME_URL = 'https://home.google.com/home/1-4bfc5f340c621c2a5bbb4d96147620f98d06c67047fe2dc72f590e014c100834/devices'
 
 function GoogleHomeCard() {
-  const [blocked, setBlocked] = useState(false)
-
   return (
-    <div className="card" style={{ padding: 0, overflow: 'hidden', minHeight: '600px', position: 'relative' }}>
-      {blocked ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '200px', gap: '12px' }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--neon-pink)' }}>
-            google home blocked embedding
-          </span>
-          <a
-            href={GOOGLE_HOME_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--neon-cyan)', textDecoration: 'none', letterSpacing: '0.06em' }}
-          >
-            open in new tab →
-          </a>
+    <a
+      href={GOOGLE_HOME_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ textDecoration: 'none', display: 'block' }}
+    >
+      <div className="card" style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        cursor: 'pointer',
+        transition: 'border-color 0.15s',
+      }}
+        onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--neon-cyan)44')}
+        onMouseLeave={e => (e.currentTarget.style.borderColor = '')}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: '50%',
+            background: 'var(--bg-elevated)',
+            border: '0.5px solid var(--border-mid)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z" fill="var(--text-ghost)" />
+              <path d="M12 7v5l3 3" stroke="var(--neon-cyan)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--text-primary)', letterSpacing: '0.02em', marginBottom: '3px' }}>
+              google home
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+              spider hill — all devices
+            </div>
+          </div>
         </div>
-      ) : (
-        <iframe
-          src={GOOGLE_HOME_URL}
-          style={{ width: '100%', height: '600px', border: 'none', display: 'block' }}
-          onError={() => setBlocked(true)}
-          title="Google Home"
-        />
-      )}
-    </div>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--neon-cyan)', letterSpacing: '0.06em' }}>
+          open →
+        </span>
+      </div>
+    </a>
   )
 }
 
