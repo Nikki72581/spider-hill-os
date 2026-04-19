@@ -6,6 +6,7 @@ import OneThingCard from '@/components/dashboard-v2/OneThingCard'
 import Lane from '@/components/dashboard-v2/Lane'
 import InboxTriage from '@/components/dashboard-v2/InboxTriage'
 import DashboardHeader from '@/components/dashboard/DashboardHeader'
+import UpcomingEvents from '@/components/dashboard-v2/UpcomingEvents'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,8 +70,11 @@ export default async function DashboardPage() {
         <Lane bucket="LATER" tasks={later} />
       </div>
 
-      {/* AI triage inbox */}
-      <InboxTriage items={inbox} />
+      {/* Upcoming calendar events + AI triage inbox */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+        <UpcomingEvents />
+        <InboxTriage items={inbox} />
+      </div>
     </div>
   )
 }

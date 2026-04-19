@@ -1,37 +1,31 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { parseICS } from '@/lib/ics'
+
+export type CalendarEvent = {
+  id: string
+  title: string
+  start: string
+  end: string
+  isAllDay: boolean
+  location?: string
+  source: 'stellarone' | 'junova'
+  category: 'WORK' | 'PERSONAL'
+}
 
 export async function GET() {
-  const session = await getServerSession(authOptions)
+  try {
+    const [stellar, junova] = await Promise.all([
+      parseICS(process.env.STELLAR_ICS_URL!, 'stellarone', 'WORK',     30),
+      parseICS(process.env.JUNOVA_ICS_URL!,  'junova',     'PERSONAL', 30),
+    ])
 
-  if (!session?.accessToken) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    const all = [...stellar, ...junova].sort(
+      (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
+    )
+
+    return NextResponse.json(all)
+  } catch (err) {
+    console.error('Calendar fetch error:', err)
+    return NextResponse.json({ error: 'Failed to fetch calendar feeds' }, { status: 500 })
   }
-
-  const now = new Date()
-  const endOfWeek = new Date(now)
-  endOfWeek.setDate(now.getDate() + 7)
-
-  const url = new URL('https://graph.microsoft.com/v1.0/me/calendarView')
-  url.searchParams.set('startDateTime', now.toISOString())
-  url.searchParams.set('endDateTime', endOfWeek.toISOString())
-  url.searchParams.set('$select', 'subject,start,end,location,isAllDay,bodyPreview,webLink')
-  url.searchParams.set('$orderby', 'start/dateTime')
-  url.searchParams.set('$top', '20')
-
-  const res = await fetch(url.toString(), {
-    headers: {
-      Authorization: `Bearer ${session.accessToken}`,
-      'Content-Type': 'application/json',
-    },
-  })
-
-  if (!res.ok) {
-    const err = await res.json()
-    return NextResponse.json({ error: err }, { status: res.status })
-  }
-
-  const data = await res.json()
-  return NextResponse.json(data.value)
 }
