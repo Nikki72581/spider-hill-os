@@ -4,14 +4,34 @@ import { parseICS } from '@/lib/ics'
 export const dynamic = 'force-dynamic'
 
 export default async function CalendarPage() {
-  const [stellar, junova] = await Promise.all([
-    parseICS(process.env.STELLAR_ICS_URL!, 'stellarone', 'WORK',     60),
-    parseICS(process.env.JUNOVA_ICS_URL!,  'junova',     'PERSONAL', 60),
-  ])
+  const stellarUrl = process.env.STELLAR_ICS_URL
+  const junovaUrl  = process.env.JUNOVA_ICS_URL
 
-  const events = [...stellar, ...junova].sort(
-    (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
-  )
+  if (!stellarUrl || !junovaUrl) {
+    return (
+      <div style={{ padding: 40, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+        Calendar feeds not configured. Set STELLAR_ICS_URL and JUNOVA_ICS_URL environment variables.
+      </div>
+    )
+  }
 
-  return <CalendarClient events={events} />
+  try {
+    const [stellar, junova] = await Promise.all([
+      parseICS(stellarUrl, 'stellarone', 'WORK',     60),
+      parseICS(junovaUrl,  'junova',     'PERSONAL', 60),
+    ])
+
+    const events = [...stellar, ...junova].sort(
+      (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
+    )
+
+    return <CalendarClient events={events} />
+  } catch (err) {
+    console.error('Calendar page error:', err)
+    return (
+      <div style={{ padding: 40, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+        Failed to load calendar feeds. Check server logs for details.
+      </div>
+    )
+  }
 }
