@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import type { Light } from '@/app/api/home/lights/route'
+import type { HAData } from '@/app/api/home/ha/route'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -28,6 +29,49 @@ function latencyColor(ms: number) {
 
 function sourceColor(_source: 'hue') {
   return 'var(--neon-amber)'
+}
+
+function hvacColor(action: string | null) {
+  if (action === 'heating') return 'var(--neon-amber)'
+  if (action === 'cooling') return 'var(--neon-cyan)'
+  if (action === 'idle') return 'var(--neon-green)'
+  return 'var(--text-muted)'
+}
+
+function sensorIcon(device_class: string | null) {
+  switch (device_class) {
+    case 'temperature': return '°'
+    case 'humidity': return '%'
+    case 'battery': return '⌁'
+    case 'power': return 'W'
+    case 'energy': return 'kWh'
+    case 'co2': return 'CO₂'
+    case 'pm25': return 'PM2.5'
+    case 'pm10': return 'PM10'
+    case 'illuminance': return 'lx'
+    default: return '·'
+  }
+}
+
+function binaryIcon(device_class: string | null, on: boolean) {
+  switch (device_class) {
+    case 'door': return on ? 'open' : 'closed'
+    case 'window': return on ? 'open' : 'closed'
+    case 'motion': return on ? 'detected' : 'clear'
+    case 'smoke': return on ? 'detected' : 'clear'
+    case 'moisture': return on ? 'wet' : 'dry'
+    case 'lock': return on ? 'unlocked' : 'locked'
+    case 'presence': return on ? 'home' : 'away'
+    case 'opening': return on ? 'open' : 'closed'
+    default: return on ? 'on' : 'off'
+  }
+}
+
+function binaryStateColor(device_class: string | null, on: boolean) {
+  if (device_class === 'smoke' || device_class === 'moisture') return on ? 'var(--neon-pink)' : 'var(--neon-green)'
+  if (device_class === 'motion' || device_class === 'presence') return on ? 'var(--neon-cyan)' : 'var(--text-muted)'
+  if (device_class === 'door' || device_class === 'window' || device_class === 'opening') return on ? 'var(--neon-amber)' : 'var(--text-muted)'
+  return on ? 'var(--neon-green)' : 'var(--text-muted)'
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -60,6 +104,276 @@ function SetupCard({ title, steps }: { title: string; steps: string[] }) {
           </li>
         ))}
       </ol>
+    </div>
+  )
+}
+
+// ─── Home Assistant card ──────────────────────────────────────────────────────
+
+async function callHAService(domain: string, service: string, entity_id: string, extra?: Record<string, unknown>) {
+  await fetch('/api/home/ha/service', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ domain, service, entity_id, service_data: extra }),
+  })
+}
+
+function HALightsSection({ lights, onToggle }: {
+  lights: HAData['lights']
+  onToggle: (entity_id: string, on: boolean) => void
+}) {
+  if (lights.length === 0) return null
+  const onCount = lights.filter(l => l.on && !l.unavailable).length
+
+  return (
+    <div className="card" style={{ padding: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+          lights
+        </span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: onCount > 0 ? 'var(--neon-green)' : 'var(--text-muted)' }}>
+          {onCount}/{lights.length} on
+        </span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {lights.map(light => (
+          <div key={light.entity_id} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {/* Toggle button */}
+            <button
+              onClick={() => !light.unavailable && onToggle(light.entity_id, light.on)}
+              disabled={light.unavailable}
+              style={{
+                width: 7, height: 7, borderRadius: '50%', flexShrink: 0, padding: 0,
+                background: light.on ? 'var(--neon-green)' : 'var(--bg-overlay)',
+                border: light.on ? 'none' : '0.5px solid var(--border-mid)',
+                boxShadow: light.on ? '0 0 6px var(--neon-green)88' : 'none',
+                cursor: light.unavailable ? 'not-allowed' : 'pointer',
+                opacity: light.unavailable ? 0.4 : 1,
+                transition: 'background 0.15s, box-shadow 0.15s',
+              }}
+              title={light.unavailable ? 'unavailable' : light.on ? 'turn off' : 'turn on'}
+            />
+            <span style={{
+              fontFamily: 'var(--font-display)', fontSize: '12px',
+              color: light.on ? 'var(--text-primary)' : 'var(--text-muted)',
+              flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>
+              {light.name}
+            </span>
+            {light.on && light.brightness > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                <div style={{ width: '48px', height: '3px', borderRadius: '2px', background: 'var(--bg-overlay)', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${light.brightness}%`, background: 'var(--neon-green)', borderRadius: '2px', transition: 'width 0.3s' }} />
+                </div>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-muted)', width: '28px', textAlign: 'right' }}>
+                  {light.brightness}%
+                </span>
+              </div>
+            )}
+            {light.unavailable && (
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--neon-pink)', flexShrink: 0 }}>offline</span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function HAClimateSection({ climate }: { climate: HAData['climate'] }) {
+  if (climate.length === 0) return null
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      {climate.map(c => (
+        <div key={c.entity_id} className="card" style={{ padding: '14px 16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              {c.name}
+            </span>
+            {c.hvac_action && (
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: hvacColor(c.hvac_action), letterSpacing: '0.04em' }}>
+                {c.hvac_action}
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px' }}>
+            {c.current_temp != null && (
+              <div>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '22px', fontWeight: 700, color: hvacColor(c.hvac_action) }}>
+                  {c.current_temp}°
+                </span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-ghost)', marginLeft: '4px' }}>now</span>
+              </div>
+            )}
+            {c.target_temp != null && (
+              <div>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '16px', color: 'var(--text-secondary)' }}>
+                  {c.target_temp}°
+                </span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-ghost)', marginLeft: '4px' }}>set</span>
+              </div>
+            )}
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-ghost)', marginLeft: 'auto', letterSpacing: '0.04em' }}>
+              {c.mode}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function HASensorsSection({ sensors, binary_sensors }: { sensors: HAData['sensors']; binary_sensors: HAData['binary_sensors'] }) {
+  if (sensors.length === 0 && binary_sensors.length === 0) return null
+  return (
+    <div className="card" style={{ padding: '16px' }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '14px' }}>
+        sensors
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '10px' }}>
+        {sensors.map(s => (
+          <div key={s.entity_id} style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--text-ghost)', letterSpacing: '0.06em', textTransform: 'uppercase', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {s.name}
+            </span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '15px', fontWeight: 600, color: 'var(--neon-cyan)' }}>
+              {s.state}{s.unit && <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '2px' }}>{s.unit}</span>}
+            </span>
+          </div>
+        ))}
+        {binary_sensors.map(s => (
+          <div key={s.entity_id} style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--text-ghost)', letterSpacing: '0.06em', textTransform: 'uppercase', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {s.name}
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: binaryStateColor(s.device_class, s.on), flexShrink: 0 }} />
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: binaryStateColor(s.device_class, s.on) }}>
+                {binaryIcon(s.device_class, s.on)}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function HomeAssistantCard() {
+  const [status, setStatus] = useState<Status<HAData>>({ state: 'loading' })
+  // optimistic state for light toggles
+  const [lightOverrides, setLightOverrides] = useState<Record<string, boolean>>({})
+
+  const load = useCallback(() => {
+    fetch('/api/home/ha')
+      .then(r => r.json())
+      .then((data: HAData) => {
+        setStatus({ state: 'ok', data })
+        setLightOverrides({})
+      })
+      .catch(() => setStatus({ state: 'error', msg: 'fetch failed' }))
+  }, [])
+
+  useEffect(() => { load() }, [load])
+
+  async function handleToggle(entity_id: string, currentOn: boolean) {
+    const nextOn = !currentOn
+    setLightOverrides(prev => ({ ...prev, [entity_id]: nextOn }))
+    try {
+      await callHAService('light', nextOn ? 'turn_on' : 'turn_off', entity_id)
+      // refresh after short delay so HA state catches up
+      setTimeout(load, 1200)
+    } catch {
+      setLightOverrides(prev => ({ ...prev, [entity_id]: currentOn }))
+    }
+  }
+
+  if (status.state === 'loading') return (
+    <div className="card" style={{ minHeight: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)', animation: 'neon-pulse 1.5s ease-in-out infinite' }}>
+        connecting to home assistant…
+      </span>
+    </div>
+  )
+
+  if (status.state === 'error') return (
+    <div className="card">
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--neon-pink)' }}>home assistant unavailable</span>
+    </div>
+  )
+
+  const { configured, reachable, lights, climate, sensors, binary_sensors } = status.data
+
+  if (!configured) return (
+    <SetupCard
+      title="home assistant"
+      steps={[
+        'In Home Assistant: Profile → Long-Lived Access Tokens → Create Token',
+        'Add to .env.local: HOME_ASSISTANT_URL=http://<ha-ip>:8123',
+        'Add to .env.local: HOME_ASSISTANT_TOKEN=<your-token>',
+        'Restart the dev server — HA is only accessible on LAN until you expose it remotely',
+      ]}
+    />
+  )
+
+  if (!reachable) return (
+    <div className="card">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+        <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--neon-pink)', display: 'inline-block' }} />
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--neon-pink)' }}>
+          home assistant unreachable
+        </span>
+      </div>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-ghost)', lineHeight: 1.6 }}>
+        Home Assistant is only available on the local network. Connect to Spider Hill WiFi or expose HA remotely to use home control.
+      </div>
+    </div>
+  )
+
+  const resolvedLights = lights.map(l => ({
+    ...l,
+    on: lightOverrides[l.entity_id] !== undefined ? lightOverrides[l.entity_id] : l.on,
+  }))
+
+  const hasContent = lights.length > 0 || climate.length > 0 || sensors.length > 0 || binary_sensors.length > 0
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {/* Status header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--neon-green)', boxShadow: '0 0 6px var(--neon-green)88', display: 'inline-block', animation: 'neon-pulse 2s ease-in-out infinite' }} />
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--neon-green)', letterSpacing: '0.06em' }}>
+          connected
+        </span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'var(--text-ghost)', marginLeft: 'auto', letterSpacing: '0.04em' }}>
+          lan only
+        </span>
+        <button
+          onClick={load}
+          style={{
+            background: 'var(--bg-elevated)', border: '0.5px solid var(--border-mid)',
+            borderRadius: 'var(--radius-sm)', padding: '2px 8px',
+            color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)',
+            fontSize: '10px', letterSpacing: '0.06em', cursor: 'pointer',
+          }}
+        >
+          refresh
+        </button>
+      </div>
+
+      {!hasContent && (
+        <div className="card">
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-secondary)' }}>
+            no entities found — check HA entity configuration
+          </span>
+        </div>
+      )}
+
+      {climate.length > 0 && <HAClimateSection climate={climate} />}
+      {resolvedLights.length > 0 && <HALightsSection lights={resolvedLights} onToggle={handleToggle} />}
+      {(sensors.length > 0 || binary_sensors.length > 0) && (
+        <HASensorsSection sensors={sensors} binary_sensors={binary_sensors} />
+      )}
     </div>
   )
 }
@@ -377,6 +691,12 @@ export default function HomePage() {
         <GoogleHomeCard />
       </div>
 
+      {/* Home Assistant */}
+      <div style={{ marginBottom: '28px' }}>
+        <SectionLabel>home assistant</SectionLabel>
+        <HomeAssistantCard />
+      </div>
+
       {/* Bottom row: network + lights */}
       <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '16px', alignItems: 'start' }}>
         <div>
@@ -384,7 +704,7 @@ export default function HomePage() {
           <NetworkCard />
         </div>
         <div>
-          <SectionLabel>lights</SectionLabel>
+          <SectionLabel>philips hue</SectionLabel>
           <LightsCard />
         </div>
       </div>
