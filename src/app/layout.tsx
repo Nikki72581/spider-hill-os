@@ -6,6 +6,17 @@ import SessionProvider from '@/components/SessionProvider'
 export const metadata: Metadata = {
   title: 'Spider Hill OS',
   description: 'Personal operating system',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Spider Hill OS',
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'theme-color': '#020802',
+    'msapplication-TileColor': '#020802',
+  },
 }
 
 export default function RootLayout({

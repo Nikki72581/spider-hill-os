@@ -1,0 +1,17 @@
+{
+  "name": "Spider Hill OS",
+  "short_name": "SH OS",
+  "description": "Personal operating system",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020802",
+  "theme_color": "#020802",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
